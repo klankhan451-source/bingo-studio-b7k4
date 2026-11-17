@@ -300,6 +300,7 @@ if (typeof module !== 'undefined' && module.exports) {
       largePrint: $('large-print').checked,
       cutMarks: $('cut-marks').checked,
       cover: $('cover-on').checked,
+      markers: $('markers-on') ? $('markers-on').checked : true,
       pattern: $('pattern-sel').value,
       pictureStyle: $('pic-style').value === 'pic' ? 'pic' : 'piclabel',
       useClues: $('use-clues').checked,
@@ -821,6 +822,7 @@ if (typeof module !== 'undefined' && module.exports) {
       paper: $('paper-sel').value,
       perPage: $('perpage-sel').value,
       cover: $('cover-on').checked,
+      markers: $('markers-on') ? $('markers-on').checked : true,
       pattern: $('pattern-sel').value,
       picStyle: $('pic-style').value,
       useClues: $('use-clues').checked,
@@ -849,6 +851,7 @@ if (typeof module !== 'undefined' && module.exports) {
     $('paper-sel').value = p.paper;
     $('perpage-sel').value = p.perPage;
     $('cover-on').checked = !!p.cover;
+    if ($('markers-on')) $('markers-on').checked = p.markers !== false;
     $('pattern-sel').value = p.pattern;
     $('pic-style').value = p.picStyle;
     $('use-clues').checked = !!p.useClues;
