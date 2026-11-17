@@ -1,3 +1,8 @@
+/* The app shows/hides screens with the `hidden` attribute; this guard
+   keeps any CSS display rule from overriding it (the lock screen is
+   display:flex, which would otherwise keep it visible after unlock). */
+[hidden] { display: none !important; }
+
 /* Bingo Card Generator Pro — app chrome styles (Songlap Deals)
    The generated BOOK has its own stylesheet, injected at runtime
    from book.js (BingoBook.bookCss) so screen preview, browser
