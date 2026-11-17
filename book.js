@@ -35,13 +35,22 @@ function bookCss(design, opts) {
   '.bk-page { page-break-after: always; break-after: page; font-family: ' + d.cellFont + '; color: ' + d.cellText + '; }' +
   '.bk-page:last-child { page-break-after: auto; break-after: auto; }' +
   /* cover */
-  '.bk-cover { text-align: center; padding-top: 16mm; }' +
+  '.bk-cover { text-align: center; padding: 10mm 6mm 12mm; background: ' + d.pageBg + '; }' +
+  '.bk-cover .cov-badge { display: inline-block; background: ' + d.headerBg + '; color: ' + d.headerText + '; font-size: 9.5pt; letter-spacing: 2.5px; padding: 1.8mm 6mm; border-radius: 999px; margin-bottom: 7mm; }' +
+  '.bk-cover .cov-emojis { font-size: 17pt; letter-spacing: 5px; margin: 5mm 0 1mm; }' +
+  '.bk-cover .cov-sub { font-size: 12.5pt; font-style: italic; margin: -3mm 0 5mm; }' +
+  '.bk-cover .cov-minis { display: flex; justify-content: center; gap: 7mm; margin-top: 8mm; }' +
+  '.bk-cover .cov-minis .cov-mini { margin: 0; }' +
+  '.bk-cover .cov-tilt-l { transform: rotate(-2deg); }' +
+  '.bk-cover .cov-tilt-r { transform: rotate(2deg); }' +
+  '.bk-cover .cov-band { margin-top: 10mm; background: ' + d.headerBg + '; color: ' + d.headerText + '; font-size: 10.5pt; padding: 3.2mm 5mm; border-radius: ' + d.radius + 'px; }' +
   '.bk-cover .cov-frame { border: 3px ' + d.borderStyle + ' ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 12mm 8mm; background: ' + d.cardBg + '; }' +
   '.bk-cover h1 { font-family: ' + d.headerFont + '; font-size: 34pt; margin: 0 0 4mm; color: ' + d.headerBg + '; }' +
   '.bk-cover h2 { font-family: ' + d.headerFont + '; font-size: 15pt; font-weight: normal; margin: 0 0 8mm; }' +
   '.bk-cover .cov-meta { font-size: 12pt; line-height: 1.9; }' +
   '.bk-cover .cov-inc { margin-top: 7mm; font-size: 11pt; color: ' + d.accent + '; }' +
-  '.bk-cover .cov-mini { width: 92mm; margin: 8mm auto 0; }' +
+  '.bk-cover .cov-mini { width: 76mm; margin: 8mm auto 0; }' +
+  '.bk-cover .cov-mini.wide { width: 122mm; }' +
   '.bk-cover .cov-mini table { table-layout: fixed; }' +
   /* the cover miniature gets a compact type scale so words
      never crush letter-by-letter at thumbnail size */
@@ -61,6 +70,18 @@ function bookCss(design, opts) {
   '.bk-inst p, .bk-inst li { font-size: 11.5pt; line-height: 1.55; }' +
   '.bk-inst ul { margin: 0 0 2mm 6mm; padding: 0; }' +
   '.bk-pattern { display: inline-block; border: 2px solid ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 3mm 5mm; margin-top: 2mm; }' +
+  '.pat-row { display: flex; gap: 5mm; margin-top: 3mm; }' +
+  '.pat-box { text-align: center; border: 1.6px solid ' + d.cellBorder + '; border-radius: ' + d.radius + 'px; padding: 2.5mm 3mm; background: ' + d.cardBg + '; }' +
+  '.pat-box.chosen { border: 2.4px solid ' + d.accent + '; }' +
+  '.pat-grid { border-collapse: collapse; margin: 0 auto; }' +
+  '.pat-grid td { width: 3.4mm; height: 3.4mm; border: 0.7px solid ' + d.cellBorder + '; background: ' + d.cellAlt + '; padding: 0; }' +
+  '.pat-grid td.on { background: ' + d.accent + '; }' +
+  '.pat-name { font-size: 8.5pt; margin-top: 1.6mm; }' +
+  '.pat-box.chosen .pat-name { font-weight: bold; }' +
+  /* printable markers */
+  '.bk-chips-wrap { display: flex; flex-wrap: wrap; gap: 4mm; justify-content: center; margin-top: 5mm; }' +
+  '.bk-chip { width: 24mm; height: 24mm; border: 1.4px dashed #888; border-radius: 50%; background: ' + d.cardBg + '; text-align: center; }' +
+  '.bk-chip span { font-size: 19pt; line-height: 24mm; }' +
   /* card pages */
   '.bk-cards { display: flex; flex-wrap: wrap; gap: 6mm; justify-content: center; align-content: flex-start; }' +
   '.bk-cards.per1 .bcard { width: 96%; }' +
@@ -256,22 +277,97 @@ function patternName(patternId) {
   return names[patternId] || names.line;
 }
 
+function coverEmojiStrip(set, opts) {
+  if (set.mode === 'ball75') return '🔵 🔴 🟢 🟡 🟣 🟠';
+  if (set.mode === 'ball90') return '🎱 🎟️ 🎱 🎟️ 🎱 🎟️';
+  var seen = {}, out = [];
+  (opts.items || []).forEach(function (it) {
+    if (it.e && !seen[it.e] && out.length < 8) { seen[it.e] = 1; out.push(it.e); }
+  });
+  return out.length >= 3 ? out.join(' ') : '🎉 🎊 ⭐ 🎈 🎁';
+}
+
 function coverPage(set, opts) {
-  var mini = cardHtml(set, set.cards[0], opts);
+  var inc = set.cards.length + ' bingo cards · calling cards · master call sheet · cut-out calling slips · how-to-play page' +
+    (opts.markers ? ' · printable markers' : '');
+  var minis;
+  if (set.mode === 'ball90') {
+    minis = '<div class="cov-mini wide">' + cardHtml(set, set.cards[0], opts) + '</div>';
+  } else {
+    minis = '<div class="cov-minis">' +
+      '<div class="cov-mini cov-tilt-l">' + cardHtml(set, set.cards[0], opts) + '</div>' +
+      (set.cards[1] ? '<div class="cov-mini cov-tilt-r">' + cardHtml(set, set.cards[1], opts) + '</div>' : '') +
+      '</div>';
+  }
   return '<div class="bk-page bk-cover"><div class="cov-frame">' +
+    '<div><span class="cov-badge">★ PRINTABLE BINGO GAME PACK ★</span></div>' +
     '<div style="font-size:26pt">' + (opts.coverEmoji || '🎉') + '</div>' +
     '<h1>' + esc(opts.title || 'Bingo') + '</h1>' +
     '<h2>' + esc(opts.formatName || '') + '</h2>' +
+    (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
+    '<div class="cov-emojis">' + coverEmojiStrip(set, opts) + '</div>' +
     '<div class="cov-meta">' + set.cards.length + ' unique cards · Set ' + esc(set.setId) + '<br>' +
     'Winning pattern: ' + esc(patternName(opts.pattern)) + '<br>' +
     'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
-    '<div class="cov-inc">INCLUDES: ' + set.cards.length + ' bingo cards · calling cards · master call sheet · cut-out calling slips · how-to-play page</div>' +
-    '<div class="cov-mini">' + mini + '</div>' +
+    '<div class="cov-inc">INCLUDES: ' + inc + '</div>' +
+    minis +
+    '<div class="cov-band">You need: a printer · scissors · coins, beans or markers to cover your squares</div>' +
     '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
     '</div></div>';
 }
 
+function patternDiagram(kind, chosen) {
+  var on = function (r, c) {
+    if (kind === 'line') return r === 2;
+    if (kind === 'corners') return (r === 0 || r === 4) && (c === 0 || c === 4);
+    if (kind === 'x') return r === c || r + c === 4;
+    return true; /* blackout */
+  };
+  var rows = '';
+  for (var r = 0; r < 5; r++) {
+    rows += '<tr>';
+    for (var c = 0; c < 5; c++) rows += '<td' + (on(r, c) ? ' class="on"' : '') + '></td>';
+    rows += '</tr>';
+  }
+  var labels = { line: 'Any line', corners: 'Four corners', x: 'X pattern', blackout: 'Blackout' };
+  return '<div class="pat-box' + (chosen ? ' chosen' : '') + '"><table class="pat-grid">' + rows +
+    '</table><div class="pat-name">' + labels[kind] + (chosen ? ' ★' : '') + '</div></div>';
+}
+
+function markersPage(set, opts) {
+  var glyphs;
+  if (set.mode === 'ball75' || set.mode === 'ball90') {
+    glyphs = ['★'];
+  } else {
+    var seen = {}, out = [];
+    (opts.items || []).forEach(function (it) {
+      if (it.e && !seen[it.e]) { seen[it.e] = 1; out.push(it.e); }
+    });
+    glyphs = out.length ? out : ['⭐'];
+  }
+  var chips = '';
+  for (var i = 0; i < 30; i++) {
+    chips += '<div class="bk-chip"><span>' + esc(glyphs[i % glyphs.length]) + '</span></div>';
+  }
+  return '<div class="bk-page bk-call"><h2>Printable Markers — Set ' + esc(set.setId) + '</h2>' +
+    '<p style="font-size:10.5pt;margin:0 0 2mm">No coins or beans handy? Print this page and cut out the chips to cover your squares.</p>' +
+    '<div class="bk-chips-wrap">' + chips + '</div></div>';
+}
+
 function instructionsPage(set, opts) {
+  var patternBlock;
+  if (set.mode === 'ball90') {
+    patternBlock = '<div class="bk-pattern"><strong>Winning patterns (UK 90-ball):</strong> ' +
+      'One line (any full row) · Two lines (two full rows on one ticket) · Full house (all 15 numbers)</div>';
+  } else {
+    patternBlock = '<div class="bk-pattern"><strong>Winning pattern for this game:</strong> ' + esc(patternName(opts.pattern)) + '</div>' +
+      '<h3>Ways to win</h3><div class="pat-row">' +
+      patternDiagram('line', opts.pattern === 'line') +
+      patternDiagram('corners', opts.pattern === 'corners') +
+      patternDiagram('x', opts.pattern === 'x') +
+      patternDiagram('blackout', opts.pattern === 'blackout') +
+      '</div>';
+  }
   return '<div class="bk-page bk-inst"><h2>How to Play</h2>' +
     '<p><strong>Set ' + esc(set.setId) + '</strong> · ' + set.cards.length + ' cards · ' + esc(opts.formatName || '') + '</p>' +
     '<h3>You need</h3><ul><li>One printed card per player (this pack)</li>' +
@@ -281,7 +377,7 @@ function instructionsPage(set, opts) {
     '<li>Players cover the matching square on their card. The centre ★ is free — it counts as covered.</li>' +
     '<li>The first player to complete the winning pattern shouts <strong>BINGO!</strong></li>' +
     '<li>Check the winning card: its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
-    '<div class="bk-pattern"><strong>Winning pattern for this game:</strong> ' + esc(patternName(opts.pattern)) + '</div>' +
+    patternBlock +
     '<h3>Printing tips</h3><ul><li>Print at 100% scale (do not “fit to page”).</li>' +
     '<li>Card stock or laminated cards last for many games.</li>' +
     '<li>Use the Ink Saver design for cheap classroom/church photocopying.</li></ul>' +
@@ -322,6 +418,7 @@ function buildBook(set, opts) {
   }
 
   callingPages(set, opts).forEach(function (p) { pages.push(p); });
+  if (opts.markers) pages.push(markersPage(set, opts));
   return { html: pages.join('\n'), pageCount: pages.length };
 }
 
