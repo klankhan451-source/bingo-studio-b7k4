@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Bingo Card Generator Pro — Songlap Deals</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ ACCESS GATE ============ -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo">🎉</div>
+    <h1>Bingo Card Generator Pro</h1>
+    <p class="lock-sub">A Songlap Deals tool for creating complete, print-ready
+    bingo game packs — word, picture, 75-ball &amp; 90-ball, up to 500 unique
+    cards per set.<br>Enter your name and your access code to unlock.</p>
+    <form id="lock-form">
+      <input type="text" id="lock-name" placeholder="Your name" autocomplete="name" spellcheck="false">
+      <input type="text" id="lock-input" placeholder="Your access code" autocomplete="off"
+             autocapitalize="characters" spellcheck="false">
+      <button type="submit" class="btn btn-gold" id="lock-submit">Unlock</button>
+    </form>
+    <p id="lock-error" class="lock-error" hidden></p>
+    <p class="lock-note">Your name and code were included with your purchase delivery.</p>
+  </div>
+</div>
+
+<!-- ============ APP (hidden until unlocked) ============ -->
+<div id="app" hidden>
+
+<div id="license-bar" class="license-bar" hidden>Licensed to: <span id="license-name"></span> · <span id="license-code"></span></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon">🎉</span>
+      <div>
+        <div class="brand-name">SONGLAP DEALS</div>
+        <div class="brand-tag">Bingo Card Generator Pro</div>
+      </div>
+    </div>
+    <div class="header-note">Complete bingo game packs in minutes: up to 500 unique cards, calling cards, a master call sheet, cut-out slips and a live caller — for parties, classrooms, churches, seniors, and printable sellers. US Letter + A4.</div>
+  </div>
+</header>
+
+<div class="get-strip" aria-label="What you get">
+  <span>🎴 4 game modes</span>
+  <span>🃏 500 unique cards / set</span>
+  <span>🎨 40 themes · 8 designs</span>
+  <span>📞 Live caller built in</span>
+  <span>📄 Letter + A4</span>
+</div>
+
+<nav class="tabs" aria-label="Tool sections">
+  <button type="button" class="tab-btn active" data-tab="create">🛠 Create a game pack</button>
+  <button type="button" class="tab-btn" data-tab="caller">📣 Live Caller</button>
+  <button type="button" class="tab-btn" data-tab="checker">✅ Card Checker</button>
+  <button type="button" class="tab-btn" data-tab="projects">📁 Projects &amp; Guide</button>
+</nav>
+
+<!-- ============ CREATE ============ -->
+<section id="tab-create" class="tab-panel">
+  <div class="create-grid">
+    <div class="controls card-panel">
+
+      <h3>1 · Game type</h3>
+      <div class="mode-row" id="mode-row">
+        <button type="button" class="mode-btn active" data-mode="word">🔤 Word Bingo</button>
+        <button type="button" class="mode-btn" data-mode="picture">🖼️ Picture Bingo</button>
+        <button type="button" class="mode-btn" data-mode="ball75">🔵 75-Ball</button>
+        <button type="button" class="mode-btn" data-mode="ball90">🎟️ 90-Ball (UK)</button>
+      </div>
+
+      <div id="theme-block">
+        <h3>2 · Theme or your own list</h3>
+        <label>Category
+          <select id="theme-cat"></select>
+        </label>
+        <label>Theme
+          <select id="theme-sel"></select>
+        </label>
+        <div id="pic-style-row">
+          <label>Picture style
+            <select id="pic-style">
+              <option value="piclabel">Picture + word label</option>
+              <option value="pic">Picture only</option>
+            </select>
+          </label>
+        </div>
+        <details id="custom-box">
+          <summary>✍️ Use my own word list instead</summary>
+          <p class="hint">One item per line. Add a clue after a pipe — <code>Paris | Capital of France</code> — and the caller &amp; calling cards will show the <em>clue</em> (classroom Q&amp;A mode). Add a second pipe + an emoji to set the tile picture. Custom lists accept any language.</p>
+          <textarea id="custom-text" rows="7" placeholder="Apple&#10;Banana | A yellow fruit&#10;Cherry | A small red fruit | 🍒"></textarea>
+          <label class="file-label">…or import a CSV file
+            <input type="file" id="csv-file" accept=".csv,.txt">
+          </label>
+          <label class="check"><input type="checkbox" id="use-clues"> Show clues (not words) on calling materials</label>
+          <div id="custom-images-row">
+            <label class="file-label">🖼️ Upload your own tile pictures (picture mode — matched to your list in order)
+              <input type="file" id="img-files" accept="image/*" multiple>
+            </label>
+            <p class="hint" id="img-count"></p>
+          </div>
+        </details>
+      </div>
+
+      <div id="grid-block">
+        <h3>3 · Card layout</h3>
+        <label>Grid size
+          <select id="grid-sel">
+            <option value="3">3 × 3 (young kids &amp; seniors)</option>
+            <option value="4">4 × 4</option>
+            <option value="5" selected>5 × 5 (classic)</option>
+          </select>
+        </label>
+      </div>
+      <label class="check" id="free-row"><input type="checkbox" id="free-space" checked> Free centre space</label>
+      <label id="free-text-row">Free-space text
+        <input type="text" id="free-text" value="★ FREE" maxlength="14">
+      </label>
+
+      <h3>4 · Set size &amp; seed</h3>
+      <label>Number of cards (1–500)
+        <input type="number" id="count-in" value="30" min="1" max="500">
+      </label>
+      <label>Set seed <span class="hint">(same seed + settings = the exact same set — reprints &amp; winner checks)</span>
+        <span class="seed-row"><input type="text" id="seed-in" maxlength="24"><button type="button" class="btn btn-small btn-teal" id="seed-rand">🎲 New</button></span>
+      </label>
+      <p class="hint" id="setid-line"></p>
+
+      <h3>5 · Look &amp; print</h3>
+      <label>Design
+        <select id="design-sel"></select>
+      </label>
+      <p class="hint" id="design-blurb"></p>
+      <label class="check"><input type="checkbox" id="ink-saver"> Ink saver (white background, outlines only)</label>
+      <label class="check"><input type="checkbox" id="large-print"> Large print (seniors &amp; young readers)</label>
+      <label class="check"><input type="checkbox" id="cut-marks" checked> Cutting guides around cards</label>
+      <label>Paper
+        <select id="paper-sel">
+          <option value="letter">US Letter</option>
+          <option value="a4">A4</option>
+        </select>
+      </label>
+      <label id="perpage-row">Cards per page
+        <select id="perpage-sel">
+          <option value="1">1 (biggest)</option>
+          <option value="2" selected>2</option>
+          <option value="4">4</option>
+          <option value="6">6</option>
+        </select>
+      </label>
+      <p class="hint" id="strip-note" hidden>90-ball tickets print as complete strips of 6 per page — strips are never split.</p>
+      <label class="check"><input type="checkbox" id="cover-on" checked> Cover page as page 1</label>
+      <label>Winning pattern
+        <select id="pattern-sel">
+          <option value="line">Any line (row, column or diagonal)</option>
+          <option value="corners">Four corners</option>
+          <option value="x">X (both diagonals)</option>
+          <option value="blackout">Blackout (full card)</option>
+        </select>
+      </label>
+      <label>Pack title
+        <input type="text" id="title-in" value="Christmas Bingo" maxlength="60">
+      </label>
+      <label>Subtitle
+        <input type="text" id="subtitle-in" value="" maxlength="60" placeholder="e.g. Family Game Night">
+      </label>
+      <label>Your name / brand on the cards
+        <input type="text" id="business-in" value="Songlap Deals" maxlength="40">
+      </label>
+
+      <button type="button" class="btn btn-gold btn-big" id="generate-btn">🎲 Generate game pack</button>
+      <div class="progress" id="gen-progress" hidden><div class="progress-bar" id="gen-bar"></div></div>
+      <p class="status-line" id="gen-status"></p>
+
+      <div class="export-row">
+        <button type="button" class="btn btn-teal" id="print-btn" disabled>🖨️ Print / Save PDF</button>
+        <button type="button" class="btn btn-teal" id="zip-btn" disabled>🗂️ Download pack (.zip)</button>
+        <button type="button" class="btn btn-teal" id="png-btn" disabled>🖼️ Card 1 as PNG</button>
+      </div>
+      <p class="hint">Vector-sharp at any print resolution — the PDF is real text &amp; shapes, never a screenshot.</p>
+    </div>
+
+    <div class="preview card-panel">
+      <div class="preview-head">
+        <h3>Preview</h3>
+        <label>Zoom
+          <select id="zoom-sel">
+            <option value="0.5">50%</option>
+            <option value="0.75" selected>75%</option>
+            <option value="1">100%</option>
+          </select>
+        </label>
+        <span class="hint" id="page-count"></span>
+      </div>
+      <div id="book-preview" class="book-preview">
+        <p class="hint" style="padding:18px">Choose your settings and press <strong>Generate game pack</strong>. Try a ready-made sample from the <strong>Projects &amp; Guide</strong> tab if you want to see a finished pack first.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LIVE CALLER ============ -->
+<section id="tab-caller" class="tab-panel" hidden>
+  <div class="card-panel caller-panel">
+    <h3>📣 Live Caller</h3>
+    <p class="hint">Runs the <strong>current generated set</strong> in the exact order printed on its Master Call Sheet. Generate a pack first (Create tab), then call the game here — on a TV, projector or just this screen.</p>
+    <div class="caller-display" id="caller-display">—</div>
+    <div class="caller-sub" id="caller-sub"></div>
+    <div class="caller-controls">
+      <button type="button" class="btn btn-teal" id="caller-prev">⬅ Previous</button>
+      <button type="button" class="btn btn-gold btn-big" id="caller-next">Next call ➡</button>
+      <button type="button" class="btn btn-teal" id="caller-auto">▶ Auto-call</button>
+      <label>Every
+        <select id="caller-speed">
+          <option value="5">5 sec</option>
+          <option value="10" selected>10 sec</option>
+          <option value="15">15 sec</option>
+          <option value="20">20 sec</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="caller-voice" checked> 🔊 Speak calls aloud</label>
+      <button type="button" class="btn btn-teal" id="caller-reset">↺ Restart</button>
+    </div>
+    <p class="status-line" id="caller-status"></p>
+    <h4>Called so far</h4>
+    <div class="caller-history" id="caller-history"></div>
+    <div id="caller-board-wrap"></div>
+  </div>
+</section>
+
+<!-- ============ CARD CHECKER ============ -->
+<section id="tab-checker" class="tab-panel" hidden>
+  <div class="card-panel checker-panel">
+    <h3>✅ Card Checker</h3>
+    <p class="hint">A player shouts BINGO? Type the Card ID printed at the bottom of their card, mark what has been called (or pull in the Live Caller's calls), and the checker gives the verdict for the game's winning pattern.</p>
+    <div class="checker-form">
+      <label>Card ID
+        <input type="text" id="checker-id" placeholder="e.g. K7P2X-007" autocapitalize="characters">
+      </label>
+      <label>From set
+        <select id="checker-set"></select>
+      </label>
+      <button type="button" class="btn btn-gold" id="checker-load">Show card</button>
+      <button type="button" class="btn btn-teal" id="checker-usecaller" disabled>Use Live Caller's calls</button>
+    </div>
+    <p class="status-line" id="checker-status"></p>
+    <div id="checker-card"></div>
+    <div class="checker-actions">
+      <button type="button" class="btn btn-gold btn-big" id="checker-verify" disabled>Check for a win</button>
+      <button type="button" class="btn btn-teal" id="checker-clear" disabled>Clear marks</button>
+    </div>
+    <div class="checker-verdict" id="checker-verdict"></div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS & GUIDE ============ -->
+<section id="tab-projects" class="tab-panel" hidden>
+  <div class="card-panel">
+    <h3>⭐ Start from a sample</h3>
+    <p class="hint">Three ready-made projects — press Load and the Create tab is filled in and generated for you.</p>
+    <div id="sample-list" class="sample-list"></div>
+
+    <h3 style="margin-top:26px">📁 My saved projects</h3>
+    <p class="hint">Projects save your settings, word list and seed in this browser — reopening one recreates the exact same set.</p>
+    <div class="checker-form">
+      <label>Project name
+        <input type="text" id="project-name" placeholder="e.g. Mrs Lee's Christmas party">
+      </label>
+      <button type="button" class="btn btn-gold" id="project-save">Save current settings</button>
+    </div>
+    <div id="project-list"></div>
+
+    <h3 style="margin-top:26px">📖 Quick guide</h3>
+    <ol class="guide-list">
+      <li><strong>Create:</strong> pick a game type and theme (or paste your own list — any language works), choose how many cards, a design, and Generate.</li>
+      <li><strong>Print:</strong> use “Print / Save PDF”. Print at 100% scale. The pack includes a cover, how-to-play page, the cards, calling cards, a master call sheet and cut-out slips.</li>
+      <li><strong>Play:</strong> open the Live Caller tab — it calls in the same order as the printed sheet, can read calls aloud, and keeps the board for you.</li>
+      <li><strong>Check winners:</strong> every card has a printed Card ID. Enter it in the Card Checker — because sets are seed-based, the exact card is rebuilt and verified.</li>
+      <li><strong>Selling your packs?</strong> Your licence covers selling the finished bingo sets you create (see the Commercial Use Licence in your download). The tool and your code themselves must never be shared or resold.</li>
+    </ol>
+    <p class="hint">Trouble printing? Try the Ink Saver design, check the paper size matches your printer, and keep “Background graphics” ON if a design uses coloured headers.</p>
+  </div>
+</section>
+
+<footer class="site-footer">© Songlap Deals · Bingo Card Generator Pro · Personal licence — one buyer, one code.</footer>
+</div>
+
+<!-- print area: only the generated book prints -->
+<div id="print-root" hidden></div>
+
+<script src="engine.js"></script>
+<script src="themes.js"></script>
+<script src="designs.js"></script>
+<script src="book.js"></script>
+<script src="zip.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
