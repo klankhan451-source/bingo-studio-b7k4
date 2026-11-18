@@ -138,6 +138,8 @@ details summary { cursor: pointer; font-weight: 700; font-size: 14px; color: #20
 
 /* ---------- caller ---------- */
 .caller-panel { max-width: 860px; margin: 0 auto; }
+.caller-setpick { display: flex; gap: 8px; align-items: center; font-size: 14.5px; font-weight: 600; margin: 4px 0 6px; }
+.caller-setpick select { flex: 1; padding: 8px 10px; border: 1px solid #b9c9bd; border-radius: 8px; font: inherit; font-weight: 400; }
 .caller-display {
   background: #0f2027; color: #ffd166; border-radius: 14px; text-align: center;
   font-size: 54px; font-weight: 800; padding: 30px 14px; line-height: 1.15; min-height: 120px;
