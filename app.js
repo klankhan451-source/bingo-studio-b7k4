@@ -179,6 +179,7 @@ if (typeof module !== 'undefined' && module.exports) {
           $('tab-' + t).hidden = t !== b.getAttribute('data-tab');
         });
         if (b.getAttribute('data-tab') === 'checker') refreshCheckerSets();
+        if (b.getAttribute('data-tab') === 'caller') { restoreCurrent(); refreshCallerSets(); renderCaller(); }
       });
     });
   }
@@ -358,6 +359,7 @@ if (typeof module !== 'undefined' && module.exports) {
         ['print-btn', 'zip-btn', 'png-btn'].forEach(function (id) { $(id).disabled = false; });
         resetCaller();
         refreshCheckerSets();
+        refreshCallerSets();
       } catch (err) {
         $('gen-status').textContent = '⚠️ ' + err.message;
       }
@@ -558,6 +560,46 @@ if (typeof module !== 'undefined' && module.exports) {
     return state.current;
   }
 
+  /* The Caller must survive page reloads: saved set records persist in
+     localStorage, so rebuild the newest one as the current set on load.
+     (Before this fix the Caller only knew the set generated in the same
+     session — after any reload it wrongly said "Generate a pack first".) */
+  function restoreCurrent() {
+    if (state.current || !state.sets.length) return;
+    var record = state.sets[0];
+    try {
+      var set = buildSet(record);
+      var opts = Object.assign({}, record.opts, { items: record.cfg.items, customImages: null });
+      state.current = { record: record, set: set, opts: opts, design: resolveDesign(record.opts) };
+      state.caller.setId = set.setId;
+    } catch (e) { /* leave current null */ }
+  }
+
+  function refreshCallerSets() {
+    var sel = $('caller-set');
+    if (!sel) return;
+    var cur = state.current ? state.current.set.setId : null;
+    sel.innerHTML = state.sets.map(function (r, i) {
+      var sid = E.setIdFromSeed(r.cfg.seed);
+      return '<option value="' + i + '"' + (sid === cur ? ' selected' : '') + '>Set ' + sid +
+        ' · ' + r.cfg.mode + ' · ' + r.cfg.count + ' cards</option>';
+    }).join('') || '<option value="">— no sets yet —</option>';
+  }
+
+  function useCallerSet(idx) {
+    var record = state.sets[idx];
+    if (!record) return;
+    try {
+      var set = buildSet(record);
+      var opts = Object.assign({}, record.opts, { items: record.cfg.items, customImages: null });
+      state.current = { record: record, set: set, opts: opts, design: resolveDesign(record.opts) };
+      stopAuto();
+      state.caller.pos = -1;
+      state.caller.setId = set.setId;
+      renderCaller();
+    } catch (e) { /* keep the previous set */ }
+  }
+
   function callText(set, opts, v) {
     var lab = BK.callLabel(set, opts, v);
     return lab;
@@ -649,6 +691,10 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   function initCaller() {
+    var setSel = $('caller-set');
+    if (setSel) {
+      setSel.addEventListener('change', function () { useCallerSet(parseInt(setSel.value, 10)); });
+    }
     $('caller-next').addEventListener('click', function () { callerStep(1); });
     $('caller-prev').addEventListener('click', function () { stopAuto(); callerStep(-1); });
     $('caller-reset').addEventListener('click', resetCaller);
@@ -966,7 +1012,9 @@ if (typeof module !== 'undefined' && module.exports) {
     initChecker();
     initProjects();
     initFiles();
+    restoreCurrent();
     refreshCheckerSets();
+    refreshCallerSets();
   }
 
   if (typeof document !== 'undefined') {
