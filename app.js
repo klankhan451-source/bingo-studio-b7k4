@@ -821,7 +821,7 @@ if (typeof module !== 'undefined' && module.exports) {
     },
     {
       name: '🦁 Classroom Animals',
-      desc: 'Picture bingo with labels · Animals · 24 cards · Classroom Pro design',
+      desc: 'Picture bingo with labels · Animals · 24 cards · Classroom & Teacher design',
       apply: { mode: 'picture', themeId: 'animals', grid: 4, free: true, count: 24, seed: 'CLASS25', designId: 'classroom', title: 'Animal Bingo', pattern: 'line' }
     },
     {
