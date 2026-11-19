@@ -64,6 +64,45 @@ function bookCss(design, opts) {
   '.bk-cover .cov-mini .cell-piclabel { font-size: 5.5pt; }' +
   '.bk-cover .cov-mini .bc-foot, .cov-mini .bc-id { font-size: 5.5pt; }' +
   '.bk-cover .cov-biz { margin-top: 9mm; font-size: 10pt; letter-spacing: 1px; }' +
+  /* back cover */
+  '.bk-back { text-align: center; padding: 10mm 6mm 12mm; background: ' + d.pageBg + '; }' +
+  '.bk-back .back-frame { border: 3px ' + d.borderStyle + ' ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 10mm 8mm; background: ' + d.cardBg + '; }' +
+  '.bk-back h2 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 20pt; margin: 0 0 4mm; }' +
+  '.bk-back h3 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 13pt; margin: 6mm 0 2mm; }' +
+  '.bk-back .back-list { display: inline-block; text-align: left; font-size: 12pt; line-height: 1.95; margin: 0; padding: 0; list-style: none; }' +
+  '.bk-back .back-how { font-size: 11.5pt; line-height: 1.65; margin: 0; }' +
+  '.bk-back .cov-mini { width: 76mm; margin: 6mm auto 0; }' +
+  '.bk-back .cov-mini.wide { width: 122mm; }' +
+  '.bk-back .cov-mini table { table-layout: fixed; }' +
+  '.bk-back .cov-mini .bcard { padding: 2mm; }' +
+  '.bk-back .cov-mini .bc-head { font-size: 8.5pt; padding: 1mm; margin: -2mm -2mm 1.5mm; }' +
+  '.bk-back .cov-mini .bc-head .bc-set { display: none; }' +
+  '.bk-back .cov-mini td { padding: 0.3mm; }' +
+  '.bk-back .cov-mini .cell-word { font-size: 5.9pt; }' +
+  '.bk-back .cov-mini .cell-num { font-size: 7.5pt; }' +
+  '.bk-back .cov-mini .cell-emoji { font-size: 10pt; }' +
+  '.bk-back .cov-mini .cell-piclabel { font-size: 5.5pt; }' +
+  '.bk-back .cov-mini .bc-foot, .bk-back .cov-mini .bc-id { font-size: 5.5pt; }' +
+  '.bk-balls { display: flex; justify-content: center; gap: 3mm; margin-top: 6mm; }' +
+  '.bk-ball { width: 13mm; height: 13mm; border-radius: 50%; color: #ffffff; font-weight: bold; font-size: 10.5pt; line-height: 13mm; text-align: center; }' +
+  '.bk-back .back-thanks { margin-top: 8mm; font-size: 14pt; font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; }' +
+  '.bk-back .back-biz { margin-top: 1.5mm; font-size: 10pt; letter-spacing: 1px; }' +
+  '.bk-barcode { margin-top: 7mm; }' +
+  '.bk-barcode .bars { display: flex; justify-content: center; align-items: stretch; height: 12mm; }' +
+  '.bk-barcode .bar { background: #1a1a1a; margin-right: 0.55mm; }' +
+  '.bk-barcode .bc-label { font-size: 8.5pt; letter-spacing: 2.5px; margin-top: 1.6mm; }' +
+  /* own-photo cover: the picture bleeds to the paper edges (it is
+     offset by exactly the page margin) and the words sit on a
+     readable plate near the bottom */
+  '.bk-photo-cover { position: relative; height: calc(' + PAPER[opts.paper].h + ' - ' + pageMargin + ' - ' + pageMargin + '); }' +
+  '.bk-photo-cover .cov-photo { position: absolute; top: -' + pageMargin + '; left: -' + pageMargin + '; width: ' + PAPER[opts.paper].w + '; height: ' + PAPER[opts.paper].h + '; object-fit: cover; }' +
+  '.bk-photo-cover .cov-plate { position: absolute; left: 6mm; right: 6mm; bottom: 10mm; background: rgba(255,255,255,0.9); border-radius: ' + d.radius + 'px; padding: 6mm 5mm 5mm; text-align: center; }' +
+  '.bk-photo-cover .cov-badge { display: inline-block; background: ' + d.headerBg + '; color: ' + d.headerText + '; font-size: 9.5pt; letter-spacing: 2.5px; padding: 1.8mm 6mm; border-radius: 999px; margin-bottom: 4mm; }' +
+  '.bk-photo-cover h1 { font-family: ' + d.headerFont + '; font-size: 30pt; margin: 0 0 2mm; color: ' + d.headerBg + '; }' +
+  '.bk-photo-cover h2 { font-family: ' + d.headerFont + '; font-size: 13.5pt; font-weight: normal; margin: 0 0 3mm; color: ' + d.cellText + '; }' +
+  '.bk-photo-cover .cov-sub { font-size: 12pt; font-style: italic; margin: 0 0 3mm; color: ' + d.cellText + '; }' +
+  '.bk-photo-cover .cov-meta { font-size: 11pt; line-height: 1.8; color: ' + d.cellText + '; }' +
+  '.bk-photo-cover .cov-biz { margin-top: 3mm; font-size: 10pt; letter-spacing: 1px; color: ' + d.cellText + '; }' +
   /* instructions */
   '.bk-inst h2 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 19pt; margin: 0 0 4mm; }' +
   '.bk-inst h3 { font-family: ' + d.headerFont + '; font-size: 13pt; margin: 6mm 0 2mm; }' +
@@ -288,6 +327,22 @@ function coverEmojiStrip(set, opts) {
 }
 
 function coverPage(set, opts) {
+  /* Buyer's own picture: full-bleed photo cover with a title plate.
+     The designed cover below renders exactly as before when no
+     picture is set. */
+  if (opts.coverImage) {
+    return '<div class="bk-page bk-photo-cover">' +
+      '<img class="cov-photo" src="' + opts.coverImage + '" alt="">' +
+      '<div class="cov-plate">' +
+      '<div><span class="cov-badge">★ PRINTABLE BINGO GAME PACK ★</span></div>' +
+      '<h1>' + esc(opts.title || 'Bingo') + '</h1>' +
+      '<h2>' + esc(opts.formatName || '') + '</h2>' +
+      (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
+      '<div class="cov-meta">' + set.cards.length + ' unique cards · Set ' + esc(set.setId) + '<br>' +
+      'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
+      '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
+      '</div></div>';
+  }
   var inc = set.cards.length + ' bingo cards · calling cards · master call sheet · cut-out calling slips · how-to-play page' +
     (opts.markers ? ' · printable markers' : '');
   var minis;
@@ -313,6 +368,70 @@ function coverPage(set, opts) {
     minis +
     '<div class="cov-band">You need: a printer · scissors · coins, beans or markers to cover your squares</div>' +
     '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
+    '</div></div>';
+}
+
+/* ---------- back cover ---------- */
+
+/* Decorative barcode-style block: bar widths are derived from the
+   set ID, so every set's back cover carries its own "barcode". */
+function barcodeHtml(set) {
+  var seedStr = String(set.setId || 'BINGO');
+  var widths = [0.5, 0.9, 1.4];
+  var bars = '';
+  for (var i = 0; i < 34; i++) {
+    var code = seedStr.charCodeAt(i % seedStr.length) + i * 7;
+    bars += '<span class="bar" style="width:' + widths[code % 3] + 'mm"></span>';
+  }
+  return '<div class="bk-barcode"><div class="bars">' + bars + '</div>' +
+    '<div class="bc-label">SET ' + esc(set.setId) + '</div></div>';
+}
+
+/* A strip of the first five called balls (75-ball back cover). */
+function ballStripHtml(set) {
+  var colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#7c3aed'];
+  var balls = '';
+  for (var i = 0; i < 5 && i < set.callOrder.length; i++) {
+    balls += '<span class="bk-ball" style="background:' + colors[i % colors.length] + '">' +
+      set.callOrder[i] + '</span>';
+  }
+  return '<div class="bk-balls">' + balls + '</div>';
+}
+
+function backCoverPage(set, opts) {
+  var contents = [
+    set.cards.length + ' unique bingo cards — every card different',
+    'Calling cards',
+    'Master call sheet',
+    'Cut-out calling slips',
+    'How-to-play page'
+  ];
+  if (opts.markers) contents.push('Printable markers page');
+  var list = contents.map(function (x) { return '<li>✓ ' + esc(x) + '</li>'; }).join('');
+  var visual;
+  if (set.mode === 'ball90') {
+    visual = '<div class="cov-mini wide">' + cardHtml(set, set.cards[0], opts) + '</div>';
+  } else if (set.mode === 'ball75') {
+    visual = ballStripHtml(set);
+  } else {
+    visual = '<div class="cov-mini">' + cardHtml(set, set.cards[0], opts) + '</div>';
+  }
+  var how = set.mode === 'ball90'
+    ? 'Print one ticket strip per player.<br>' +
+      'The caller calls one number at a time — dab it off on your ticket.<br>' +
+      'First to complete a line, two lines or the full house wins!'
+    : 'Print one card per player and cut out the calling slips.<br>' +
+      'The caller draws one call at a time — cover the matching square.<br>' +
+      'First to complete the winning pattern shouts BINGO!';
+  return '<div class="bk-page bk-back"><div class="back-frame">' +
+    '<h2>What’s inside this pack</h2>' +
+    '<ul class="back-list">' + list + '</ul>' +
+    visual +
+    '<h3>How to play — the short version</h3>' +
+    '<p class="back-how">' + how + '</p>' +
+    '<div class="back-thanks">Thank you for playing!</div>' +
+    '<div class="back-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
+    barcodeHtml(set) +
     '</div></div>';
 }
 
@@ -390,7 +509,8 @@ function instructionsPage(set, opts) {
  * buildBook(set, opts) -> { html, pageCount }
  * opts: design-resolved fields come via bookCss; here opts =
  * { title, subtitle, business, formatName, coverEmoji, paper,
- *   perPage (1/2/4/6), largePrint, cover (bool), pattern,
+ *   perPage (1/2/4/6), largePrint, cover (bool), backCover (bool),
+ *   coverImage (data URL or null), pattern,
  *   items, pictureStyle, useClues, customImages, freeText }
  */
 function buildBook(set, opts) {
@@ -419,6 +539,7 @@ function buildBook(set, opts) {
 
   callingPages(set, opts).forEach(function (p) { pages.push(p); });
   if (opts.markers) pages.push(markersPage(set, opts));
+  if (opts.backCover) pages.push(backCoverPage(set, opts));
   return { html: pages.join('\n'), pageCount: pages.length };
 }
 
