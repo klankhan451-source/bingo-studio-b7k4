@@ -49,7 +49,7 @@
 <div class="get-strip" aria-label="What you get">
   <span>🎴 4 game modes</span>
   <span>🃏 500 unique cards / set</span>
-  <span>🎨 40 themes · 8 designs</span>
+  <span>🎨 40 themes · 18 designs</span>
   <span>📞 Live caller built in</span>
   <span>📄 Letter + A4</span>
 </div>
@@ -155,7 +155,13 @@
       </label>
       <p class="hint" id="strip-note" hidden>90-ball tickets print as complete strips of 6 per page — strips are never split.</p>
       <label class="check"><input type="checkbox" id="cover-on" checked> Cover page as page 1</label>
+      <label class="check"><input type="checkbox" id="backcover-on" checked> Back cover (last page)</label>
       <label class="check"><input type="checkbox" id="markers-on" checked> Printable markers page (cut-out chips)</label>
+      <label class="file-label">🖼️ Your own cover picture (optional)
+        <input type="file" id="cover-image-file" accept="image/*">
+      </label>
+      <p class="hint" id="cover-image-name"></p>
+      <button type="button" class="btn btn-teal btn-small" id="cover-image-remove" hidden>Remove picture</button>
       <label>Winning pattern
         <select id="pattern-sel">
           <option value="line">Any line (row, column or diagonal)</option>
