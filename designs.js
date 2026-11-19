@@ -82,6 +82,96 @@ var BINGO_DESIGNS = [
     accent: '#e5328f', freeBg: '#8affd1', borderStyle: 'rounded', radius: 12,
     headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
     cellFont: '"Trebuchet MS", "Segoe UI", sans-serif'
+  },
+  {
+    id: 'ocean', name: 'Ocean Blue',
+    blurb: 'Deep-sea blues & teals — beach parties, summer camps',
+    pageBg: '#e8f4f8', cardBg: '#ffffff', headerBg: '#0b5e7a', headerText: '#eafcff',
+    cellBg: '#ffffff', cellAlt: '#e2f1f7', cellText: '#0d3b4c', cellBorder: '#8fc3d4',
+    accent: '#0e86a8', freeBg: '#bdeef7', borderStyle: 'solid', radius: 10,
+    headerFont: '"Segoe UI", Arial, sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'space', name: 'Space Adventure',
+    blurb: 'Starry navy & gold — kids’ space parties, STEM classes',
+    pageBg: '#141b34', cardBg: '#1d2748', headerBg: '#3b2a7a', headerText: '#ffe66d',
+    cellBg: '#232f57', cellAlt: '#2a3866', cellText: '#e8ecff', cellBorder: '#5a6db3',
+    accent: '#ffb703', freeBg: '#3b2a7a', borderStyle: 'dotted', radius: 12,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'jungle', name: 'Jungle Safari',
+    blurb: 'Leafy greens & warm amber — animal themes, school trips',
+    pageBg: '#eef5e2', cardBg: '#fffef5', headerBg: '#2e6b30', headerText: '#f1f8d8',
+    cellBg: '#ffffff', cellAlt: '#e7f2d5', cellText: '#2c4a22', cellBorder: '#9dbe7f',
+    accent: '#e08a1e', freeBg: '#ffe9a8', borderStyle: 'solid', radius: 10,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'sports', name: 'Sports Day',
+    blurb: 'Stadium red & blue, bold type — team parties, fundraisers',
+    pageBg: '#f0f3f7', cardBg: '#ffffff', headerBg: '#c8102e', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#e8eef7', cellText: '#16283f', cellBorder: '#7f9cc4',
+    accent: '#0b4ea2', freeBg: '#ffe08a', borderStyle: 'solid', radius: 6,
+    headerFont: '"Arial Black", "Trebuchet MS", Arial, sans-serif',
+    cellFont: 'Arial, Helvetica, sans-serif'
+  },
+  {
+    id: 'princess', name: 'Princess Party',
+    blurb: 'Blush pink, lavender & gold — birthdays, dress-up parties',
+    pageBg: '#fdf0f7', cardBg: '#fffafd', headerBg: '#b052a8', headerText: '#fff3fa',
+    cellBg: '#ffffff', cellAlt: '#fbe9f6', cellText: '#5e2a56', cellBorder: '#e3a8d8',
+    accent: '#d4a017', freeBg: '#ffe3f1', borderStyle: 'double', radius: 14,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
+  },
+  {
+    id: 'dino', name: 'Dinosaur World',
+    blurb: 'Earthy greens & fossil browns — dino-mad kids, museums',
+    pageBg: '#f2efe3', cardBg: '#fffdf2', headerBg: '#4a6741', headerText: '#f5efc8',
+    cellBg: '#ffffff', cellAlt: '#ecead2', cellText: '#3c4630', cellBorder: '#a8a06a',
+    accent: '#c96f1e', freeBg: '#f7df8e', borderStyle: 'dashed', radius: 8,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'autumn', name: 'Autumn Harvest',
+    blurb: 'Rust, pumpkin & cream — Thanksgiving, harvest festivals',
+    pageBg: '#faf0e2', cardBg: '#fffaf0', headerBg: '#9c4a12', headerText: '#ffedd5',
+    cellBg: '#ffffff', cellAlt: '#f7e7cf', cellText: '#5a3418', cellBorder: '#d3a05f',
+    accent: '#b3541e', freeBg: '#ffd98a', borderStyle: 'double', radius: 8,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
+  },
+  {
+    id: 'neon', name: 'Neon Arcade',
+    blurb: 'Black-light neon pink & cyan — teen parties, game nights',
+    pageBg: '#0d0d12', cardBg: '#16161f', headerBg: '#ff2e88', headerText: '#ffffff',
+    cellBg: '#1b1b28', cellAlt: '#221b33', cellText: '#e6fbff', cellBorder: '#00e5ff',
+    accent: '#00e5ff', freeBg: '#7a1e4f', borderStyle: 'solid', radius: 10,
+    headerFont: '"Courier New", ui-monospace, monospace',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'watercolor', name: 'Soft Watercolor',
+    blurb: 'Pale painted washes — baby showers, gentle celebrations',
+    pageBg: '#f7f3ee', cardBg: '#fffefb', headerBg: '#7d9dbd', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#eef3f0', cellText: '#44586a', cellBorder: '#b9cdc9',
+    accent: '#c48b9a', freeBg: '#fbe3ec', borderStyle: 'solid', radius: 12,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
+  },
+  {
+    id: 'circus', name: 'Vintage Circus',
+    blurb: 'Big-top red & cream, poster type — carnivals, fairs',
+    pageBg: '#f9efdc', cardBg: '#fffaf0', headerBg: '#a31621', headerText: '#ffedb8',
+    cellBg: '#fffdf6', cellAlt: '#fbeed3', cellText: '#4a1f1f', cellBorder: '#c98d5f',
+    accent: '#1d5c99', freeBg: '#ffd23e', borderStyle: 'double', radius: 8,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
   }
 ];
 
