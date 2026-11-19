@@ -30,7 +30,7 @@ var BINGO_DESIGNS = [
     cellFont: '"Comic Sans MS", "Trebuchet MS", sans-serif'
   },
   {
-    id: 'classroom', name: 'Classroom Pro',
+    id: 'classroom', name: 'Classroom & Teacher',
     blurb: 'Clean, high-contrast, print-friendly — teachers & TPT',
     pageBg: '#eef4fb', cardBg: '#ffffff', headerBg: '#1f5fa6', headerText: '#ffffff',
     cellBg: '#ffffff', cellAlt: '#eef4fb', cellText: '#173a5e', cellBorder: '#9dbfdd',
@@ -172,6 +172,42 @@ var BINGO_DESIGNS = [
     accent: '#1d5c99', freeBg: '#ffd23e', borderStyle: 'double', radius: 8,
     headerFont: 'Georgia, "Times New Roman", serif',
     cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'halloween', name: 'Halloween Spooktacular',
+    blurb: 'Cute-spooky pumpkins & ghosts — Halloween parties, classrooms',
+    pageBg: '#fff8ec', cardBg: '#fffdf6', headerBg: '#e88932', headerText: '#fff8ec',
+    cellBg: '#ffffff', cellAlt: '#fdeeda', cellText: '#2b2b2b', cellBorder: '#d9b48f',
+    accent: '#9b7ede', freeBg: '#dcebd9', borderStyle: 'dotted', radius: 12,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif'
+  },
+  {
+    id: 'valentine', name: 'Valentine\u2019s Sweetheart',
+    blurb: 'Cherry red & blush hearts — Valentine\u2019s parties, Galentine\u2019s, classrooms',
+    pageBg: '#fff9f4', cardBg: '#fffdfb', headerBg: '#c94b59', headerText: '#fff5f6',
+    cellBg: '#ffffff', cellAlt: '#fdeef1', cellText: '#57222b', cellBorder: '#d99ba8',
+    accent: '#c94b59', freeBg: '#f6d6dc', borderStyle: 'double', radius: 12,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
+  },
+  {
+    id: 'coquette', name: 'Coquette Pink Bow',
+    blurb: 'Satin bows & ballet pink — bridal & baby showers, teen birthdays',
+    pageBg: '#ffffff', cardBg: '#ffffff', headerBg: '#f4c2d7', headerText: '#3a3537',
+    cellBg: '#ffffff', cellAlt: '#fdf0f5', cellText: '#3a3537', cellBorder: '#e89eb8',
+    accent: '#d87a9e', freeBg: '#fbe3ee', borderStyle: 'double', radius: 14,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
+  },
+  {
+    id: 'babybeginnings', name: 'Baby Shower Sweet Beginnings',
+    blurb: 'Sage, beige & soft terracotta — baby showers, gender-neutral & gentle',
+    pageBg: '#fff9f0', cardBg: '#fffdf8', headerBg: '#c98f78', headerText: '#fff9f0',
+    cellBg: '#ffffff', cellAlt: '#f3eee1', cellText: '#4f4438', cellBorder: '#a8b9a0',
+    accent: '#a8b9a0', freeBg: '#e8dccb', borderStyle: 'solid', radius: 14,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif'
   }
 ];
 
