@@ -144,6 +144,7 @@ if (typeof module !== 'undefined' && module.exports) {
     current: null,        // { record, set, opts, design }
     sets: [],             // set records (regenerable), newest first
     customImages: {},     // itemIndex -> dataURL (custom list, this session)
+    coverImage: null,     // buyer's own cover picture (dataURL) for page 1
     caller: { pos: -1, timer: null, setId: null },
     checker: { set: null, record: null, card: null, marked: {} }
   };
@@ -301,6 +302,8 @@ if (typeof module !== 'undefined' && module.exports) {
       largePrint: $('large-print').checked,
       cutMarks: $('cut-marks').checked,
       cover: $('cover-on').checked,
+      backCover: $('backcover-on').checked,
+      coverImage: state.coverImage || null,
       markers: $('markers-on') ? $('markers-on').checked : true,
       pattern: $('pattern-sel').value,
       pictureStyle: $('pic-style').value === 'pic' ? 'pic' : 'piclabel',
@@ -868,6 +871,8 @@ if (typeof module !== 'undefined' && module.exports) {
       paper: $('paper-sel').value,
       perPage: $('perpage-sel').value,
       cover: $('cover-on').checked,
+      backCover: $('backcover-on').checked,
+      coverImage: state.coverImage || '',
       markers: $('markers-on') ? $('markers-on').checked : true,
       pattern: $('pattern-sel').value,
       picStyle: $('pic-style').value,
@@ -897,6 +902,8 @@ if (typeof module !== 'undefined' && module.exports) {
     $('paper-sel').value = p.paper;
     $('perpage-sel').value = p.perPage;
     $('cover-on').checked = !!p.cover;
+    $('backcover-on').checked = p.backCover !== false;
+    setCoverImage(p.coverImage || null);
     if ($('markers-on')) $('markers-on').checked = p.markers !== false;
     $('pattern-sel').value = p.pattern;
     $('pic-style').value = p.picStyle;
@@ -960,6 +967,42 @@ if (typeof module !== 'undefined' && module.exports) {
 
   /* ================= file inputs ================= */
 
+  /* The buyer's own cover picture: read as a data URL (downscaled
+     to a print-sensible size so saved projects stay small), kept
+     in state, and passed to the book builder by readForm. */
+  function setCoverImage(dataUrl) {
+    state.coverImage = dataUrl || null;
+    var rm = $('cover-image-remove');
+    if (rm) rm.hidden = !state.coverImage;
+    var nm = $('cover-image-name');
+    if (nm) nm.textContent = state.coverImage
+      ? '✅ Cover picture set — press Generate and it becomes page 1.'
+      : '';
+  }
+
+  function loadCoverImage(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw = String(reader.result || '');
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var maxSide = 1400;
+          var scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+          if (scale >= 1) { setCoverImage(raw); return; }
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          setCoverImage(canvas.toDataURL('image/jpeg', 0.85));
+        } catch (e) { setCoverImage(raw); }
+      };
+      img.onerror = function () { setCoverImage(raw); };
+      img.src = raw;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function initFiles() {
     $('csv-file').addEventListener('change', function () {
       var f = this.files[0];
@@ -991,6 +1034,20 @@ if (typeof module !== 'undefined' && module.exports) {
       });
     });
     $('custom-text').addEventListener('input', syncTitleFromTheme);
+    var coverFile = $('cover-image-file');
+    if (coverFile) {
+      coverFile.addEventListener('change', function () {
+        var f = this.files && this.files[0];
+        if (f) loadCoverImage(f);
+      });
+    }
+    var coverRemove = $('cover-image-remove');
+    if (coverRemove) {
+      coverRemove.addEventListener('click', function () {
+        setCoverImage(null);
+        if (coverFile) coverFile.value = '';
+      });
+    }
   }
 
   /* ================= init ================= */
