@@ -281,6 +281,18 @@ function generateSet(cfg) {
     return { id: cardId(setId, i), cells: cells };
   });
 
+  /* The EFFECTIVE free-space flag: an even grid has no centre cell,
+     so a requested free space cannot exist there (generateGridCards
+     applies the same rule), and 90-ball tickets never have one.
+     The book renderer's How-to-Play wording keys off this flag, so
+     it must describe the cards as they actually are. */
+  var effectiveFree = !!cfg.freeSpace;
+  if (cfg.mode === 'word' || cfg.mode === 'picture') {
+    effectiveFree = effectiveFree && (cfg.grid % 2 === 1);
+  } else if (cfg.mode === 'ball90') {
+    effectiveFree = false;
+  }
+
   var callOrder;
   if (cfg.mode === 'word' || cfg.mode === 'picture') {
     callOrder = shuffle(cfg.items.map(function (_, i) { return i; }), rng);
@@ -293,7 +305,7 @@ function generateSet(cfg) {
   return {
     setId: setId, seed: seed, mode: cfg.mode,
     grid: cfg.mode === 'ball90' ? 9 : (cfg.mode === 'ball75' ? 5 : cfg.grid),
-    freeSpace: !!cfg.freeSpace,
+    freeSpace: effectiveFree,
     cards: cards, callOrder: callOrder
   };
 }
