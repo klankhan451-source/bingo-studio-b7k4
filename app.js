@@ -444,7 +444,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var gridW = W - 72, gridH = H - gridTop - 84;
     var footer = function () {
       ctx.fillStyle = d.cellText; ctx.font = '26px ' + fontName(d.cellFont);
-      ctx.textAlign = 'left'; ctx.fillText('Card ' + card.id, 40, H - 42);
+      ctx.textAlign = 'left'; ctx.fillText((is90 ? 'Ticket ' : 'Card ') + card.id, 40, H - 42);
       ctx.textAlign = 'right'; ctx.fillText(opts.business || '', W - 40, H - 42);
     };
     if (is90) {
