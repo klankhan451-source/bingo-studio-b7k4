@@ -221,12 +221,16 @@ function cellInner(set, opts, v) {
       return opts.pictureStyle === 'pic' ? img : img + '<div class="cell-piclabel">' + esc(it.w) + '</div>';
     }
     if (opts.pictureStyle === 'pic') {
-      /* Picture-only must never print a blank or ambiguous square:
-         an item with no picture falls back to its word, and an item
-         whose picture is shared with a different word in the pool
-         keeps its label so players can tell the squares apart. */
+      /* Picture-only must never print a blank, ambiguous or
+         unreadable square: an item with no picture falls back to
+         its word; an item whose picture is shared with a different
+         word in the pool keeps its label so players can tell the
+         squares apart; and an item flagged 'label' in the theme
+         data — its emoji is the closest available but does not
+         read as the word by itself (e.g. 🍃 Holly, 🏠 Chimney) —
+         keeps its label too. */
       if (!it.e) return '<div class="cell-word">' + esc(it.w) + '</div>';
-      if (emojiIsAmbiguous(opts.items, it)) {
+      if (emojiIsAmbiguous(opts.items, it) || it.label) {
         return '<div class="cell-emoji">' + esc(it.e) + '</div><div class="cell-piclabel">' + esc(it.w) + '</div>';
       }
       return '<div class="cell-emoji">' + esc(it.e) + '</div>';
@@ -319,7 +323,7 @@ function callingPages(set, opts) {
   var board = '';
   if (set.mode === 'ball75' || set.mode === 'ball90') {
     var max = set.mode === 'ball75' ? 75 : 90;
-    board = '<h3 style="margin-top:6mm">Master board — cross off each number as it is called</h3><table class="bk-board">';
+    board = '<h3 style="margin-top:6mm">Cross off each number as it is called</h3><table class="bk-board">';
     for (var b = 1; b <= max; b += 10) {
       board += '<tr>';
       for (var q = 0; q < 10 && b + q <= max; q++) board += '<td>' + (b + q) + '</td>';
@@ -395,7 +399,9 @@ function coverPage(set, opts) {
       '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
       '</div></div>';
   }
-  var inc = set.cards.length + ' bingo cards · calling cards · master call sheet · cut-out calling slips · how-to-play page' +
+  var inc = set.cards.length + ' bingo cards · calling cards · master call sheet' +
+    (set.mode === 'ball75' || set.mode === 'ball90' ? ' · master board' : '') +
+    ' · cut-out calling slips · how-to-play page' +
     (opts.markers ? ' · printable markers' : '');
   var minis;
   if (set.mode === 'ball90') {
@@ -414,7 +420,9 @@ function coverPage(set, opts) {
     (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
     '<div class="cov-emojis">' + coverEmojiStrip(set, opts) + '</div>' +
     '<div class="cov-meta">' + set.cards.length + ' unique cards · Set ' + esc(set.setId) + '<br>' +
-    'Winning pattern: ' + esc(patternName(opts.pattern)) + '<br>' +
+    (set.mode === 'ball90'
+      ? 'Winning patterns: One line · Two lines · Full house<br>'
+      : 'Winning pattern: ' + esc(patternName(opts.pattern)) + '<br>') +
     'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
     '<div class="cov-inc">INCLUDES: ' + inc + '</div>' +
     minis +
@@ -454,10 +462,11 @@ function backCoverPage(set, opts) {
   var contents = [
     set.cards.length + ' unique bingo cards — every card different',
     'Calling cards',
-    'Master call sheet',
-    'Cut-out calling slips',
-    'How-to-play page'
+    'Master call sheet'
   ];
+  /* the Master Board page exists only in the number modes */
+  if (set.mode === 'ball75' || set.mode === 'ball90') contents.push('Master board');
+  contents.push('Cut-out calling slips', 'How-to-play page');
   if (opts.markers) contents.push('Printable markers page');
   var list = contents.map(function (x) { return '<li>✓ ' + esc(x) + '</li>'; }).join('');
   var visual;
@@ -522,7 +531,8 @@ function markersPage(set, opts) {
     chips += '<div class="bk-chip"><span>' + esc(glyphs[i % glyphs.length]) + '</span></div>';
   }
   return '<div class="bk-page bk-call"><h2>Printable Markers — Set ' + esc(set.setId) + '</h2>' +
-    '<p style="font-size:10.5pt;margin:0 0 2mm">No coins or beans handy? Print this page and cut out the chips to cover your squares.</p>' +
+    '<p style="font-size:10.5pt;margin:0 0 2mm">No coins or beans handy? Print this page and cut out the chips to cover your ' +
+    (set.mode === 'ball90' ? 'numbers' : 'squares') + '.</p>' +
     '<div class="bk-chips-wrap">' + chips + '</div></div>';
 }
 
