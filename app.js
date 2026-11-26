@@ -12,7 +12,7 @@
  *     change needed to go live. <<
  * ============================================================
  */
-const LICENSE_API_URL = "https://script.google.com/macros/s/AKfycbymFq-gGEiDUsNjs3aI59101_GQABNcQnNr-nmQCZVmx8tHxaYFr8-0dZTIDVcG9dX0Lw/exec";
+const LICENSE_API_URL = "BINGO_LICENSE_API_URL_PLACEHOLDER";
 
 /* ---------- License response handling (pure, unit-tested) ---------- */
 
@@ -265,7 +265,12 @@ if (typeof module !== 'undefined' && module.exports) {
     if (mode === 'word' || mode === 'picture') {
       var customItems = E.parseCustomList($('custom-text').value);
       var gridNeed = parseInt($('grid-sel').value, 10);
-      var needed = gridNeed * gridNeed - ($('free-space').checked ? 1 : 0);
+      /* An even grid has no centre cell, so a ticked free space does
+         not reduce the items needed — mirror the engine's rule or a
+         just-big-enough list slips through here and the engine then
+         fails with a raw 'pool_too_small'. */
+      var freeEffective = $('free-space').checked && gridNeed % 2 === 1;
+      var needed = gridNeed * gridNeed - (freeEffective ? 1 : 0);
       if (customItems.length >= Math.min(needed, 9)) {
         items = customItems; custom = true;
         if (items.length < needed) {
@@ -305,7 +310,8 @@ if (typeof module !== 'undefined' && module.exports) {
       backCover: $('backcover-on').checked,
       coverImage: state.coverImage || null,
       markers: $('markers-on') ? $('markers-on').checked : true,
-      pattern: $('pattern-sel').value,
+      pattern: (mode === 'ball90' && ($('pattern-sel').value === 'corners' || $('pattern-sel').value === 'x'))
+        ? 'line' : $('pattern-sel').value,
       pictureStyle: $('pic-style').value === 'pic' ? 'pic' : 'piclabel',
       useClues: $('use-clues').checked,
       freeText: $('free-text').value.trim() || '★ FREE',
@@ -326,6 +332,20 @@ if (typeof module !== 'undefined' && module.exports) {
   }
 
   /* ================= generation ================= */
+
+  /* Engine failures carry machine codes (pool_too_small, …); buyers
+     must see a sentence, not a code. */
+  function friendlyGenError(err) {
+    var msg = err && err.message ? err.message : String(err);
+    if (msg === 'pool_too_small') {
+      return 'That list is too short for this grid size — add more items or pick a smaller grid.';
+    }
+    if (msg === 'uniqueness_failed') {
+      return 'Could not make that many different cards from this list — add more items or request fewer cards.';
+    }
+    if (msg === 'bad_count') return 'Number of cards must be between 1 and 500.';
+    return msg;
+  }
 
   function generate(fromSample) {
     var form;
@@ -364,7 +384,7 @@ if (typeof module !== 'undefined' && module.exports) {
         refreshCheckerSets();
         refreshCallerSets();
       } catch (err) {
-        $('gen-status').textContent = '⚠️ ' + err.message;
+        $('gen-status').textContent = '⚠️ ' + friendlyGenError(err);
       }
       btn.disabled = false;
       setTimeout(function () { $('gen-progress').hidden = true; $('gen-bar').style.width = '0'; }, 600);
@@ -474,11 +494,28 @@ if (typeof module !== 'undefined' && module.exports) {
         });
       } else if (set.mode === 'picture') {
         var it = opts.items[val];
-        ctx.font = '64px "Noto Color Emoji", sans-serif';
-        ctx.fillText(it.e || '⭐', x + cw2 / 2, y + ch2 / 2 - (opts.pictureStyle === 'pic' ? 0 : 16));
-        if (opts.pictureStyle !== 'pic') {
-          ctx.fillStyle = d.cellText; ctx.font = 'bold 24px ' + fontName(d.cellFont);
-          ctx.fillText(it.w, x + cw2 / 2, y + ch2 - 30);
+        /* Mirror the print rule (book.js cellInner): a picture-only
+           square is never blank and never ambiguous — an item with
+           no picture draws its word, and a picture shared with a
+           different word in the pool keeps its label. */
+        var picAmbiguous = !!it.e && opts.items.some(function (o) { return o.e === it.e && o.w !== it.w; });
+        var showLabel = opts.pictureStyle !== 'pic' || !it.e || picAmbiguous;
+        if (it.e) {
+          ctx.font = '64px "Noto Color Emoji", sans-serif';
+          ctx.fillText(it.e, x + cw2 / 2, y + ch2 / 2 - (showLabel ? 16 : 0));
+        }
+        if (showLabel) {
+          ctx.fillStyle = d.cellText;
+          if (it.e) {
+            ctx.font = 'bold 24px ' + fontName(d.cellFont);
+            ctx.fillText(it.w, x + cw2 / 2, y + ch2 - 30);
+          } else {
+            ctx.font = 'bold 34px ' + fontName(d.cellFont);
+            var wlines = wrapText(ctx, it.w, cw2 - 16);
+            wlines.forEach(function (ln, li) {
+              ctx.fillText(ln, x + cw2 / 2, y + ch2 / 2 + (li - (wlines.length - 1) / 2) * 38);
+            });
+          }
         }
       } else {
         ctx.font = 'bold 58px ' + fontName(d.cellFont);
