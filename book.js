@@ -148,6 +148,25 @@ function bookCss(design, opts) {
   '.bk-cards.large .bcard .cell-emoji { font-size: 23pt; }' +
   '.bk-cards.large .bcard .cell-num { font-size: 19pt; }' +
   '.bk-cards.large .bcard .bc-title { font-size: 16pt; }' +
+  /* 6-per-page puts THREE rows of cards on one page. At the normal
+     card scale the third row can spill onto the next printed page
+     (tall designs, picture labels, large print, long words), which
+     silently breaks the announced page count — so per-page-6 cards
+     get a compact scale that always fits three rows. */
+  '.bk-cards.per6 .bcard { padding: 2mm; }' +
+  '.bk-cards.per6 .bc-head { padding: 1mm 1.5mm; margin-bottom: 1.5mm; }' +
+  '.bk-cards.per6 .bc-title { font-size: 10.5pt; }' +
+  '.bk-cards.per6 .bc-sub { font-size: 7pt; }' +
+  '.bk-cards.per6 td { padding: 0.4mm; }' +
+  '.bk-cards.per6 .cell-word { font-size: 8pt; }' +
+  '.bk-cards.per6 .cell-num { font-size: 11pt; }' +
+  '.bk-cards.per6 .cell-emoji { font-size: 13pt; }' +
+  '.bk-cards.per6 .cell-piclabel { font-size: 6pt; }' +
+  '.bk-cards.per6 .bc-foot { font-size: 6.5pt; margin-top: 1.2mm; }' +
+  '.bk-cards.per6.large .bcard .cell-word { font-size: 8.5pt; }' +
+  '.bk-cards.per6.large .bcard .cell-emoji { font-size: 14pt; }' +
+  '.bk-cards.per6.large .bcard .cell-num { font-size: 12pt; }' +
+  '.bk-cards.per6.large .bcard .bc-title { font-size: 11pt; }' +
   /* 90-ball tickets */
   '.bk-strip { display: flex; flex-direction: column; gap: 1.6mm; }' +
   /* compact tickets so a full strip of 6 fits one page
@@ -180,6 +199,18 @@ function bookCss(design, opts) {
 
 /* ---------- card rendering ---------- */
 
+/* True when another item in the pool uses the SAME picture for a
+   DIFFERENT word — in picture-only style those two squares would be
+   indistinguishable on a card, so the word label must be shown for
+   those items even in picture-only mode. */
+function emojiIsAmbiguous(items, it) {
+  if (!it.e) return false;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].e === it.e && items[i].w !== it.w) return true;
+  }
+  return false;
+}
+
 function cellInner(set, opts, v) {
   if (v === -1) return '<div class="cell-free-in">' + esc(opts.freeText || '★ FREE') + '</div>';
   if (set.mode === 'word') return '<div class="cell-word">' + esc(opts.items[v].w) + '</div>';
@@ -189,7 +220,17 @@ function cellInner(set, opts, v) {
       var img = '<img src="' + opts.customImages[v] + '" style="max-width:90%;max-height:11mm" alt="">' ;
       return opts.pictureStyle === 'pic' ? img : img + '<div class="cell-piclabel">' + esc(it.w) + '</div>';
     }
-    if (opts.pictureStyle === 'pic') return '<div class="cell-emoji">' + esc(it.e) + '</div>';
+    if (opts.pictureStyle === 'pic') {
+      /* Picture-only must never print a blank or ambiguous square:
+         an item with no picture falls back to its word, and an item
+         whose picture is shared with a different word in the pool
+         keeps its label so players can tell the squares apart. */
+      if (!it.e) return '<div class="cell-word">' + esc(it.w) + '</div>';
+      if (emojiIsAmbiguous(opts.items, it)) {
+        return '<div class="cell-emoji">' + esc(it.e) + '</div><div class="cell-piclabel">' + esc(it.w) + '</div>';
+      }
+      return '<div class="cell-emoji">' + esc(it.e) + '</div>';
+    }
     return '<div class="cell-emoji">' + esc(it.e) + '</div><div class="cell-piclabel">' + esc(it.w) + '</div>';
   }
   return '<div class="cell-num">' + v + '</div>';
@@ -505,13 +546,21 @@ function instructionsPage(set, opts) {
       patternDiagram('blackout', opts.pattern === 'blackout') +
       '</div>';
   }
+  /* The free-centre sentence is printed ONLY when this set's cards
+     really carry a free centre (set.freeSpace is the effective flag
+     from the engine). Claiming a free centre for a no-free-space set
+     — or for an even grid, which has no centre — would tell players
+     to cover a square that is never called. */
+  var freeSentence = set.freeSpace
+    ? ' The center square (' + esc(opts.freeText || '★ FREE') + ') is free — it counts as covered.'
+    : '';
   return '<div class="bk-page bk-inst"><h2>How to Play</h2>' +
     '<p><strong>Set ' + esc(set.setId) + '</strong> · ' + set.cards.length + ' cards · ' + esc(opts.formatName || '') + '</p>' +
     '<h3>You need</h3><ul><li>One printed card per player (this pack)</li>' +
     '<li>Markers: coins, beans, buttons or a pen to cross off squares</li>' +
     '<li>The calling cards or cut-out slips from this pack, and one caller</li></ul>' +
     '<h3>Playing</h3><ul><li>The caller calls one item at a time — either follow the shuffled order on the Master Call Sheet, or cut out the calling slips, mix them in a hat and draw one at a time. Tick each call on the Master Call Sheet as you make it.</li>' +
-    '<li>Players cover the matching square on their card. The center ★ is free — it counts as covered.</li>' +
+    '<li>Players cover the matching square on their card.' + freeSentence + '</li>' +
     '<li>The first player to complete the winning pattern shouts <strong>BINGO!</strong></li>' +
     '<li>Check the winning card: its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
     patternBlock +
