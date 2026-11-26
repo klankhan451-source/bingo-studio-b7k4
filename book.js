@@ -287,7 +287,7 @@ function callingPages(set, opts) {
     board += '</table>';
   }
   pages.push('<div class="bk-page bk-sheet"><h2>Master Call Sheet — Set ' + esc(set.setId) +
-    '</h2><p style="font-size:10pt;margin:0 0 3mm">Call in this exact order. Tick each call as you make it.</p><table>' +
+    '</h2><p style="font-size:10pt;margin:0 0 3mm">This set’s shuffled call order — tick each call as you make it (or tick here while drawing the cut-out slips from a hat).</p><table>' +
     rows + '</table></div>');
   if (board) {
     pages.push('<div class="bk-page bk-sheet"><h2>Master Board — Set ' + esc(set.setId) + '</h2>' + board + '</div>');
@@ -314,6 +314,17 @@ function patternName(patternId) {
     blackout: 'Blackout — cover the whole card'
   };
   return names[patternId] || names.line;
+}
+
+/* Short definition of each winning pattern (back cover). */
+function patternDef(patternId) {
+  var defs = {
+    line: 'complete any full row, column or diagonal',
+    corners: 'cover the four corner squares',
+    x: 'complete both diagonals (an X)',
+    blackout: 'cover the whole card'
+  };
+  return defs[patternId] || defs.line;
 }
 
 function coverEmojiStrip(set, opts) {
@@ -422,7 +433,8 @@ function backCoverPage(set, opts) {
       'First to complete a line, two lines or the full house wins!'
     : 'Print one card per player and cut out the calling slips.<br>' +
       'The caller draws one call at a time — cover the matching square.<br>' +
-      'First to complete the winning pattern shouts BINGO!';
+      'First to complete the winning pattern shouts BINGO!<br>' +
+      'Winning pattern: ' + patternDef(opts.pattern) + '.';
   return '<div class="bk-page bk-back"><div class="back-frame">' +
     '<h2>What’s inside this pack</h2>' +
     '<ul class="back-list">' + list + '</ul>' +
@@ -474,13 +486,19 @@ function markersPage(set, opts) {
 }
 
 function instructionsPage(set, opts) {
+  /* The Ink Saver tip is only true when this book itself was generated
+     in the Ink Saver design; otherwise give a tip that always works. */
+  var inkTip = (opts.inkSaver || opts.designId === 'inksaver')
+    ? '<li>This book is printed in the Ink Saver design — cheap for classroom/church photocopying.</li>'
+    : '<li>For cheap classroom/church photocopying, print in grayscale or draft mode.</li>';
   var patternBlock;
   if (set.mode === 'ball90') {
     patternBlock = '<div class="bk-pattern"><strong>Winning patterns (UK 90-ball):</strong> ' +
       'One line (any full row) · Two lines (two full rows on one ticket) · Full house (all 15 numbers)</div>';
   } else {
     patternBlock = '<div class="bk-pattern"><strong>Winning pattern for this game:</strong> ' + esc(patternName(opts.pattern)) + '</div>' +
-      '<h3>Ways to win</h3><div class="pat-row">' +
+      '<h3>Ways to win</h3>' +
+      '<p style="font-size:10.5pt;margin:0 0 2mm">★ marks the winning pattern for this game. The other patterns are optional extras — agree on one before you start.</p><div class="pat-row">' +
       patternDiagram('line', opts.pattern === 'line') +
       patternDiagram('corners', opts.pattern === 'corners') +
       patternDiagram('x', opts.pattern === 'x') +
@@ -492,14 +510,14 @@ function instructionsPage(set, opts) {
     '<h3>You need</h3><ul><li>One printed card per player (this pack)</li>' +
     '<li>Markers: coins, beans, buttons or a pen to cross off squares</li>' +
     '<li>The calling cards or cut-out slips from this pack, and one caller</li></ul>' +
-    '<h3>Playing</h3><ul><li>The caller draws/calls one item at a time, in the order on the Master Call Sheet.</li>' +
-    '<li>Players cover the matching square on their card. The centre ★ is free — it counts as covered.</li>' +
+    '<h3>Playing</h3><ul><li>The caller calls one item at a time — either follow the shuffled order on the Master Call Sheet, or cut out the calling slips, mix them in a hat and draw one at a time. Tick each call on the Master Call Sheet as you make it.</li>' +
+    '<li>Players cover the matching square on their card. The center ★ is free — it counts as covered.</li>' +
     '<li>The first player to complete the winning pattern shouts <strong>BINGO!</strong></li>' +
     '<li>Check the winning card: its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
     patternBlock +
     '<h3>Printing tips</h3><ul><li>Print at 100% scale (do not “fit to page”).</li>' +
     '<li>Card stock or laminated cards last for many games.</li>' +
-    '<li>Use the Ink Saver design for cheap classroom/church photocopying.</li></ul>' +
+    inkTip + '</ul>' +
     '<p style="margin-top:6mm;font-size:10pt">Made with Bingo Card Generator Pro · ' + esc(opts.business || 'Songlap Deals') + '</p></div>';
 }
 
