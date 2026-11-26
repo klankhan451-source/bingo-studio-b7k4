@@ -496,10 +496,12 @@ if (typeof module !== 'undefined' && module.exports) {
         var it = opts.items[val];
         /* Mirror the print rule (book.js cellInner): a picture-only
            square is never blank and never ambiguous — an item with
-           no picture draws its word, and a picture shared with a
-           different word in the pool keeps its label. */
+           no picture draws its word, a picture shared with a
+           different word in the pool keeps its label, and so does an
+           item flagged 'label' in the theme data (closest emoji
+           available, but not self-evident). */
         var picAmbiguous = !!it.e && opts.items.some(function (o) { return o.e === it.e && o.w !== it.w; });
-        var showLabel = opts.pictureStyle !== 'pic' || !it.e || picAmbiguous;
+        var showLabel = opts.pictureStyle !== 'pic' || !it.e || picAmbiguous || !!it.label;
         if (it.e) {
           ctx.font = '64px "Noto Color Emoji", sans-serif';
           ctx.fillText(it.e, x + cw2 / 2, y + ch2 / 2 - (showLabel ? 16 : 0));
