@@ -3,6 +3,9 @@
  *  Bingo Card Generator Pro — theme library (40 themes)
  * ============================================================
  *  Each theme: { id, name, cat, pic, items: [[word, emoji]...] }
+ *  An item pair may carry a third element 'label' when its emoji
+ *  is the closest available but not self-evident (see the
+ *  normaliser at the bottom of this file).
  *  - pic: false marks word-only themes (sight words, math) —
  *    the app disables Picture mode for those.
  *  - Every pool holds at least 30 items (Alphabet & Phonics
@@ -19,7 +22,7 @@ var BINGO_CATEGORIES = ['Holidays', 'Classroom', 'Parties', 'Community & Evergre
 var BINGO_THEMES = [
 /* ---------------- Holidays ---------------- */
 { id: 'christmas', name: 'Christmas', cat: 'Holidays', pic: true, items: [
-['Santa Claus','🎅'],['Reindeer','🦌'],['Christmas Tree','🎄'],['Snowman','⛄'],['Gift Box','🎁'],['Candy Cane','🍬'],['Stocking','🧦'],['Ornament','🔮'],['Star','⭐'],['Bell','🔔'],['Wreath','🎀'],['Snowflake','❄️'],['Elf','🧝'],['Sleigh','🛷'],['Gingerbread Man','🍪'],['Hot Cocoa','☕'],['Candle','🕯️'],['Angel','👼'],['Nutcracker','💂'],['Mistletoe','🌿'],['Fireplace','🔥'],['Snow Globe','🔮'],['Toy Train','🚂'],['Drum','🥁'],['Trumpet','🎺'],['Ribbon','🎗️'],['Carol Singers','🎶'],['North Pole','🧭'],['Chimney','🏠'],['Milk and Cookies','🥛'],['Christmas Lights','💡'],['Poinsettia','🌺'],['Holly','🍃'],['Sled','🛷'],['Ice Skates','⛸️'],['Mittens','🧤']]},
+['Santa Claus','🎅'],['Reindeer','🦌'],['Christmas Tree','🎄'],['Snowman','⛄'],['Gift Box','🎁'],['Candy Cane','🍬'],['Stocking','🧦'],['Ornament','🔮'],['Star','⭐'],['Bell','🔔'],['Wreath','🎀','label'],['Snowflake','❄️'],['Elf','🧝'],['Sleigh','🛷'],['Gingerbread Man','🍪'],['Hot Cocoa','☕'],['Candle','🕯️'],['Angel','👼'],['Nutcracker','💂'],['Mistletoe','🌿'],['Fireplace','🔥','label'],['Snow Globe','🔮'],['Toy Train','🚂'],['Drum','🥁'],['Trumpet','🎺'],['Ribbon','🎗️'],['Carol Singers','🎶'],['North Pole','🧭','label'],['Chimney','🏠','label'],['Milk and Cookies','🥛','label'],['Christmas Lights','💡'],['Poinsettia','🌺','label'],['Holly','🍃','label'],['Sled','🛷'],['Ice Skates','⛸️'],['Mittens','🧤']]},
 { id: 'halloween', name: 'Halloween', cat: 'Holidays', pic: true, items: [
 ['Pumpkin','🎃'],['Ghost','👻'],['Witch','🧙'],['Black Cat','🐈‍⬛'],['Spider','🕷️'],['Spider Web','🕸️'],['Bat','🦇'],['Skeleton','💀'],['Vampire','🧛'],['Mummy','🧟'],['Candy','🍬'],['Lollipop','🍭'],['Haunted House','🏚️'],['Full Moon','🌕'],['Owl','🦉'],['Cauldron','🍲'],['Broomstick','🧹'],['Candle','🕯️'],['Tombstone','🪦'],['Monster','👹'],['Zombie','🧟‍♂️'],['Werewolf','🐺'],['Potion','🧪'],['Crystal Ball','🔮'],['Scarecrow','🌾'],['Crow','🐦‍⬛'],['Lantern','🏮'],['Mask','🎭'],['Treat Bag','🛍️'],['Corn Maze','🌽'],['Bonfire','🔥'],['Witch Hat','🎩'],['Fangs','🦷'],['Eyeball','👁️'],['Torch','🔦'],['Key','🗝️']]},
 { id: 'thanksgiving', name: 'Thanksgiving', cat: 'Holidays', pic: true, items: [
@@ -103,9 +106,13 @@ var BINGO_THEMES = [
 ['Whale','🐳'],['Dolphin','🐬'],['Shark','🦈'],['Octopus','🐙'],['Sea Turtle','🐢'],['Jellyfish','🪼'],['Seahorse','🐴'],['Starfish','⭐'],['Crab','🦀'],['Lobster','🦞'],['Shrimp','🦐'],['Clownfish','🐠'],['Tropical Fish','🐡'],['Squid','🦑'],['Shell','🐚'],['Pearl','🦪'],['Coral','🪸'],['Seaweed','🌿'],['Wave','🌊'],['Anchor','⚓'],['Sailboat','⛵'],['Lighthouse','🗼'],['Treasure Chest','💰'],['Mermaid','🧜‍♀️'],['Pirate Ship','🏴‍☠️'],['Island','🏝️'],['Palm Tree','🌴'],['Beach Ball','🏖️'],['Snorkel','🤿'],['Surfboard','🏄'],['Sandcastle','🏰'],['Seagull','🕊️'],['Pelican','🦩'],['Penguin','🐧'],['Walrus','🦭'],['Narwhal','🐋']]}
 ];
 
-/* Normalise raw [word, emoji] pairs into { w, e } item objects. */
+/* Normalise raw [word, emoji] pairs into { w, e } item objects.
+   An optional third element 'label' marks an item whose picture is
+   the closest emoji available but does not read as the word by
+   itself (e.g. 🍃 for Holly) — such items keep their word label
+   even in picture-only style (see book.js cellInner). */
 BINGO_THEMES.forEach(function (t) {
-  t.items = t.items.map(function (p) { return { w: p[0], e: p[1] || '' }; });
+  t.items = t.items.map(function (p) { return { w: p[0], e: p[1] || '', label: p[2] === 'label' }; });
 });
 
 function bingoThemeById(id) {
