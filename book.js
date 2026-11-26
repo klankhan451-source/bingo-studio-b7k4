@@ -244,7 +244,7 @@ function cardHtml(set, card, opts, design) {
   var title = opts.title || 'BINGO';
   var head = '<div class="bc-head"><div class="bc-title">' + esc(title) + '</div>' +
     (opts.subtitle ? '<div class="bc-sub">' + esc(opts.subtitle) + '</div>' : '') + '</div>';
-  var foot = '<div class="bc-foot"><span>Card ' + esc(card.id) + '</span><span>' +
+  var foot = '<div class="bc-foot"><span>' + (set.mode === 'ball90' ? 'Ticket ' : 'Card ') + esc(card.id) + '</span><span>' +
     esc(opts.business || 'Songlap Deals') + '</span></div>';
   var rows = '';
   var r, c;
@@ -609,10 +609,10 @@ function instructionsPage(set, opts) {
     '<h3>You need</h3><ul><li>' + (is90 ? 'One printed ticket strip per player (this pack)' : 'One printed card per player (this pack)') + '</li>' +
     '<li>Markers: coins, beans, buttons or a pen to cross off ' + (is90 ? 'numbers' : 'squares') + '</li>' +
     '<li>The calling cards or cut-out slips from this pack, and one caller</li></ul>' +
-    '<h3>Playing</h3><ul><li>The caller calls one item at a time — either follow the shuffled order on the Master Call Sheet, or cut out the calling slips, mix them in a hat and draw one at a time. Tick each call on the Master Call Sheet as you make it.</li>' +
+    '<h3>Playing</h3><ul><li>The caller calls one ' + (is90 ? 'number' : 'item') + ' at a time — either follow the shuffled order on the Master Call Sheet, or cut out the calling slips, mix them in a hat and draw one at a time. Tick each call on the Master Call Sheet as you make it.</li>' +
     '<li>Players cover the matching ' + (is90 ? 'number on their ticket' : 'square on their card') + '.' + freeSentence + '</li>' +
     '<li>The first player to complete the winning pattern shouts <strong>BINGO!</strong></li>' +
-    '<li>Check the winning ' + (is90 ? 'ticket' : 'card') + ': its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
+    '<li>Check the winning ' + (is90 ? 'ticket' : 'card') + ': its ' + (is90 ? 'Ticket ID and the called numbers' : 'Card ID and the called items') + ' on the Master Call Sheet prove the win.</li></ul>' +
     patternBlock +
     '<h3>Printing tips</h3><ul><li>Print at 100% scale (do not “fit to page”).</li>' +
     '<li>Card stock or laminated cards last for many games.</li>' +
