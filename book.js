@@ -119,8 +119,8 @@ function bookCss(design, opts) {
   '.pat-box.chosen .pat-name { font-weight: bold; }' +
   /* printable markers */
   '.bk-chips-wrap { display: flex; flex-wrap: wrap; gap: 4mm; justify-content: center; margin-top: 5mm; }' +
-  '.bk-chip { width: 24mm; height: 24mm; border: 1.4px dashed #888; border-radius: 50%; background: ' + d.cardBg + '; text-align: center; }' +
-  '.bk-chip span { font-size: 19pt; line-height: 24mm; }' +
+  '.bk-chip { width: 18mm; height: 18mm; border: 1.4px dashed #888; border-radius: 50%; background: ' + d.cardBg + '; text-align: center; }' +
+  '.bk-chip span { font-size: 13pt; line-height: 18mm; }' +
   /* card pages */
   '.bk-cards { display: flex; flex-wrap: wrap; gap: 6mm; justify-content: center; align-content: flex-start; }' +
   '.bk-cards.per1 .bcard { width: 96%; }' +
@@ -383,6 +383,9 @@ function coverEmojiStrip(set, opts) {
 }
 
 function coverPage(set, opts) {
+  /* 90-ball packs sell tickets in strips, not cards — every
+     "card" word on the cover must say "ticket" for ball90. */
+  var unitWord = set.mode === 'ball90' ? 'tickets' : 'cards';
   /* Buyer's own picture: full-bleed photo cover with a title plate.
      The designed cover below renders exactly as before when no
      picture is set. */
@@ -394,12 +397,12 @@ function coverPage(set, opts) {
       '<h1>' + esc(opts.title || 'Bingo') + '</h1>' +
       '<h2>' + esc(opts.formatName || '') + '</h2>' +
       (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
-      '<div class="cov-meta">' + set.cards.length + ' unique cards · Set ' + esc(set.setId) + '<br>' +
+      '<div class="cov-meta">' + set.cards.length + ' unique ' + unitWord + ' · Set ' + esc(set.setId) + '<br>' +
       'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
       '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
       '</div></div>';
   }
-  var inc = set.cards.length + ' bingo cards · calling cards · master call sheet' +
+  var inc = set.cards.length + (set.mode === 'ball90' ? ' tickets' : ' bingo cards') + ' · calling cards · master call sheet' +
     (set.mode === 'ball75' || set.mode === 'ball90' ? ' · master board' : '') +
     ' · cut-out calling slips · how-to-play page' +
     (opts.markers ? ' · printable markers' : '');
@@ -419,14 +422,14 @@ function coverPage(set, opts) {
     '<h2>' + esc(opts.formatName || '') + '</h2>' +
     (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
     '<div class="cov-emojis">' + coverEmojiStrip(set, opts) + '</div>' +
-    '<div class="cov-meta">' + set.cards.length + ' unique cards · Set ' + esc(set.setId) + '<br>' +
+    '<div class="cov-meta">' + set.cards.length + ' unique ' + unitWord + ' · Set ' + esc(set.setId) + '<br>' +
     (set.mode === 'ball90'
       ? 'Winning patterns: One line · Two lines · Full house<br>'
       : 'Winning pattern: ' + esc(patternName(opts.pattern)) + '<br>') +
     'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
     '<div class="cov-inc">INCLUDES: ' + inc + '</div>' +
     minis +
-    '<div class="cov-band">You need: a printer · scissors · coins, beans or markers to cover your squares</div>' +
+    '<div class="cov-band">You need: a printer · scissors · coins, beans or markers to cover your ' + (set.mode === 'ball90' ? 'numbers' : 'squares') + '</div>' +
     '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
     '</div></div>';
 }
@@ -460,14 +463,16 @@ function ballStripHtml(set) {
 
 function backCoverPage(set, opts) {
   var contents = [
-    set.cards.length + ' unique bingo cards — every card different',
+    set.cards.length + (set.mode === 'ball90'
+      ? ' unique tickets — every ticket different'
+      : ' unique bingo cards — every card different'),
     'Calling cards',
     'Master call sheet'
   ];
   /* the Master Board page exists only in the number modes */
   if (set.mode === 'ball75' || set.mode === 'ball90') contents.push('Master board');
   contents.push('Cut-out calling slips', 'How-to-play page');
-  if (opts.markers) contents.push('Printable markers page');
+  if (opts.markers) contents.push('Printable markers');
   var list = contents.map(function (x) { return '<li>✓ ' + esc(x) + '</li>'; }).join('');
   var visual;
   if (set.mode === 'ball90') {
@@ -515,7 +520,22 @@ function patternDiagram(kind, chosen) {
     '</table><div class="pat-name">' + labels[kind] + (chosen ? ' ★' : '') + '</div></div>';
 }
 
-function markersPage(set, opts) {
+/*
+ * How many printable chips this pack needs: one chip for every
+ * square a player could cover — cards × coverable squares per
+ * card (free centre and 90-ball blanks excluded). A 6-card 5×5
+ * pack needs 144; a 12-ticket 90-ball pack (2 strips) needs 180.
+ * The old fixed 30 chips could not cover one full game. Chips
+ * are paginated (72 per page) so the announced page count stays
+ * exact; the first page states the total and that the page can
+ * be printed again for more.
+ */
+function markersNeeded(set) {
+  var per = set.cards[0].cells.filter(function (v) { return v !== -1 && v !== null; }).length;
+  return set.cards.length * per;
+}
+
+function markersPages(set, opts) {
   var glyphs;
   if (set.mode === 'ball75' || set.mode === 'ball90') {
     glyphs = ['★'];
@@ -526,17 +546,37 @@ function markersPage(set, opts) {
     });
     glyphs = out.length ? out : ['⭐'];
   }
-  var chips = '';
-  for (var i = 0; i < 30; i++) {
-    chips += '<div class="bk-chip"><span>' + esc(glyphs[i % glyphs.length]) + '</span></div>';
+  var total = markersNeeded(set);
+  var PER_PAGE = 72;
+  var totalPages = Math.ceil(total / PER_PAGE);
+  var unit = set.mode === 'ball90' ? 'numbers' : 'squares';
+  var pages = [];
+  var made = 0, pageNo = 0;
+  while (made < total) {
+    var n = Math.min(PER_PAGE, total - made);
+    var chips = '';
+    for (var i = 0; i < n; i++) {
+      chips += '<div class="bk-chip"><span>' + esc(glyphs[(made + i) % glyphs.length]) + '</span></div>';
+    }
+    pageNo++;
+    var head = '<h2>Printable Markers — Set ' + esc(set.setId) +
+      (totalPages > 1 ? ' (' + pageNo + ' of ' + totalPages + ')' : '') + '</h2>';
+    var intro = pageNo === 1
+      ? '<p style="font-size:10.5pt;margin:0 0 2mm">No coins or beans handy? Print this page and cut out the chips to cover your ' + unit +
+        '. ' + total + ' chips — one for every ' + (set.mode === 'ball90' ? 'number' : 'square') +
+        ' in this pack. Print this page again if you need more.</p>'
+      : '';
+    pages.push('<div class="bk-page bk-call">' + head + intro +
+      '<div class="bk-chips-wrap">' + chips + '</div></div>');
+    made += n;
   }
-  return '<div class="bk-page bk-call"><h2>Printable Markers — Set ' + esc(set.setId) + '</h2>' +
-    '<p style="font-size:10.5pt;margin:0 0 2mm">No coins or beans handy? Print this page and cut out the chips to cover your ' +
-    (set.mode === 'ball90' ? 'numbers' : 'squares') + '.</p>' +
-    '<div class="bk-chips-wrap">' + chips + '</div></div>';
+  return pages;
 }
 
 function instructionsPage(set, opts) {
+  /* 90-ball packs sell ticket strips, not cards: every "card /
+     square" word on this page must use the ticket vocabulary. */
+  var is90 = set.mode === 'ball90';
   /* The Ink Saver tip is only true when this book itself was generated
      in the Ink Saver design; otherwise give a tip that always works. */
   var inkTip = (opts.inkSaver || opts.designId === 'inksaver')
@@ -565,14 +605,14 @@ function instructionsPage(set, opts) {
     ? ' The center square (' + esc(opts.freeText || '★ FREE') + ') is free — it counts as covered.'
     : '';
   return '<div class="bk-page bk-inst"><h2>How to Play</h2>' +
-    '<p><strong>Set ' + esc(set.setId) + '</strong> · ' + set.cards.length + ' cards · ' + esc(opts.formatName || '') + '</p>' +
-    '<h3>You need</h3><ul><li>One printed card per player (this pack)</li>' +
-    '<li>Markers: coins, beans, buttons or a pen to cross off squares</li>' +
+    '<p><strong>Set ' + esc(set.setId) + '</strong> · ' + set.cards.length + (is90 ? ' tickets' : ' cards') + ' · ' + esc(opts.formatName || '') + '</p>' +
+    '<h3>You need</h3><ul><li>' + (is90 ? 'One printed ticket strip per player (this pack)' : 'One printed card per player (this pack)') + '</li>' +
+    '<li>Markers: coins, beans, buttons or a pen to cross off ' + (is90 ? 'numbers' : 'squares') + '</li>' +
     '<li>The calling cards or cut-out slips from this pack, and one caller</li></ul>' +
     '<h3>Playing</h3><ul><li>The caller calls one item at a time — either follow the shuffled order on the Master Call Sheet, or cut out the calling slips, mix them in a hat and draw one at a time. Tick each call on the Master Call Sheet as you make it.</li>' +
-    '<li>Players cover the matching square on their card.' + freeSentence + '</li>' +
+    '<li>Players cover the matching ' + (is90 ? 'number on their ticket' : 'square on their card') + '.' + freeSentence + '</li>' +
     '<li>The first player to complete the winning pattern shouts <strong>BINGO!</strong></li>' +
-    '<li>Check the winning card: its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
+    '<li>Check the winning ' + (is90 ? 'ticket' : 'card') + ': its Card ID and the called items on the Master Call Sheet prove the win.</li></ul>' +
     patternBlock +
     '<h3>Printing tips</h3><ul><li>Print at 100% scale (do not “fit to page”).</li>' +
     '<li>Card stock or laminated cards last for many games.</li>' +
@@ -615,7 +655,7 @@ function buildBook(set, opts) {
   }
 
   callingPages(set, opts).forEach(function (p) { pages.push(p); });
-  if (opts.markers) pages.push(markersPage(set, opts));
+  if (opts.markers) markersPages(set, opts).forEach(function (p) { pages.push(p); });
   if (opts.backCover) pages.push(backCoverPage(set, opts));
   return { html: pages.join('\n'), pageCount: pages.length };
 }
