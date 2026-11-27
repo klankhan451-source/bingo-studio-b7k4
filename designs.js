@@ -6,37 +6,65 @@
  *  style and font pairing. The app maps a preset onto CSS
  *  variables; "Ink Saver" can also be forced by the ink-saver
  *  toggle on any preset.
+ *
+ *  COVER FIELDS (every preset carries its own front + back
+ *  cover art config — ChatGPT guide: 24 covers = 8 families x 3;
+ *  Gemini guide: 15 covers. 39 named guide designs + 4 house
+ *  designs = 43 presets):
+ *    badge       — eyebrow pill text on the front cover
+ *    emoji       — big emoji on the front cover (word/picture
+ *                  modes; ball modes keep their own emoji)
+ *    band        — one-line bottom strip on the front cover
+ *    backHeading — fun heading on the back cover
+ *    backTeaser  — one-line teaser under the back heading
+ *    motif       — decorative treatment key (see book.js
+ *                  motifCss): frame pattern + cover deco strip
  * ============================================================
  */
 'use strict';
 
 var BINGO_DESIGNS = [
   {
-    id: 'elegant', name: 'Elegant Minimalist',
+    id: 'elegant', name: 'Elegant Bridal Shower',
     blurb: 'Cream & ivory, fine lines — weddings, showers, gifts',
     pageBg: '#f7f2e9', cardBg: '#fffdf7', headerBg: '#3d3125', headerText: '#f5e9d0',
     cellBg: '#ffffff', cellAlt: '#faf5ea', cellText: '#3d3125', cellBorder: '#c9b896',
     accent: '#b98a1d', freeBg: '#f5e9d0', borderStyle: 'double', radius: 6,
     headerFont: 'Georgia, "Times New Roman", serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ ELEGANT BINGO ★', emoji: '💍',
+    band: 'ELEGANT • TIMELESS • MADE FOR YOUR DAY',
+    backHeading: 'A BEAUTIFUL DAY OF PLAY AWAITS!',
+    backTeaser: 'Print, call, and celebrate — every card is one of a kind.',
+    motif: 'wedding'
   },
   {
-    id: 'kids', name: 'Cute Kids',
+    id: 'kids', name: 'Kids Birthday Bash',
     blurb: 'Pastel rainbow, rounded & friendly — preschool, parties',
     pageBg: '#fdf3f8', cardBg: '#ffffff', headerBg: '#e56aa0', headerText: '#ffffff',
     cellBg: '#fff7fb', cellAlt: '#eef7ff', cellText: '#5b3a5e', cellBorder: '#f2b8d0',
     accent: '#e56aa0', freeBg: '#ffe98a', borderStyle: 'rounded', radius: 14,
     headerFont: '"Comic Sans MS", "Segoe UI Rounded", "Trebuchet MS", sans-serif',
-    cellFont: '"Comic Sans MS", "Trebuchet MS", sans-serif'
+    cellFont: '"Comic Sans MS", "Trebuchet MS", sans-serif',
+    badge: '★ KIDS BIRTHDAY BASH ★', emoji: '🎈',
+    band: 'BIRTHDAY FUN • EVERY CARD DIFFERENT',
+    backHeading: 'LET THE BIRTHDAY GAMES BEGIN!',
+    backTeaser: 'Balloons up, cards out — the fun starts now.',
+    motif: 'confetti'
   },
   {
-    id: 'classroom', name: 'Classroom & Teacher',
+    id: 'classroom', name: "Teacher's Classroom",
     blurb: 'Clean, high-contrast, print-friendly — teachers & TPT',
     pageBg: '#eef4fb', cardBg: '#ffffff', headerBg: '#1f5fa6', headerText: '#ffffff',
     cellBg: '#ffffff', cellAlt: '#eef4fb', cellText: '#173a5e', cellBorder: '#9dbfdd',
     accent: '#1f5fa6', freeBg: '#d7e9ff', borderStyle: 'solid', radius: 4,
     headerFont: '"Segoe UI", Arial, sans-serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CLASSROOM BINGO ★', emoji: '📚',
+    band: 'READY FOR CLASS • PRINT • PLAY • LEARN',
+    backHeading: 'READY FOR THE CLASSROOM!',
+    backTeaser: 'Print a class set in minutes — every card unique.',
+    motif: 'gridpaper'
   },
   {
     id: 'floral', name: 'Luxury Floral',
@@ -45,70 +73,110 @@ var BINGO_DESIGNS = [
     cellBg: '#ffffff', cellAlt: '#f3efe4', cellText: '#44503e', cellBorder: '#b3bfa5',
     accent: '#a8873a', freeBg: '#efe6cd', borderStyle: 'floral', radius: 10,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif'
+    cellFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    badge: '★ LUXURY FLORAL BINGO ★', emoji: '🌸',
+    band: 'SOFT • ELEGANT • MADE FOR SPECIAL DAYS',
+    backHeading: 'BEAUTIFUL GAMES FOR BEAUTIFUL DAYS!',
+    backTeaser: 'Delicate florals, easy play — made to be shared.',
+    motif: 'spring'
   },
   {
-    id: 'retro', name: 'Retro Vintage',
+    id: 'retro', name: 'Retro Bingo Night',
     blurb: 'Warm cream, classic bingo-hall styling — seniors, music bingo',
     pageBg: '#f6e8d4', cardBg: '#fff8ea', headerBg: '#8c3b1d', headerText: '#ffe9c9',
     cellBg: '#fffdf4', cellAlt: '#fbeed3', cellText: '#5e2c14', cellBorder: '#c98d5f',
     accent: '#8c3b1d', freeBg: '#ffd98a', borderStyle: 'double', radius: 8,
     headerFont: '"Courier New", ui-monospace, monospace',
-    cellFont: 'Georgia, serif'
+    cellFont: 'Georgia, serif',
+    badge: '★ RETRO BINGO NIGHT ★', emoji: '🎱',
+    band: 'OLD-SCHOOL FUN • EVERY CARD DIFFERENT',
+    backHeading: 'WELCOME TO BINGO NIGHT!',
+    backTeaser: 'Classic hall style — call the numbers, shout BINGO!',
+    motif: 'classic'
   },
   {
-    id: 'inksaver', name: 'Ink Saver',
+    id: 'inksaver', name: 'Clean Ink-Saver Minimalist',
     blurb: 'White background, crisp outlines — bulk school/church printing',
     pageBg: '#ffffff', cardBg: '#ffffff', headerBg: '#ffffff', headerText: '#111111',
     cellBg: '#ffffff', cellAlt: '#ffffff', cellText: '#111111', cellBorder: '#555555',
     accent: '#111111', freeBg: '#eeeeee', borderStyle: 'solid', radius: 2,
     headerFont: 'Arial, Helvetica, sans-serif',
-    cellFont: 'Arial, Helvetica, sans-serif'
+    cellFont: 'Arial, Helvetica, sans-serif',
+    badge: '★ INK-SAVER BINGO ★', emoji: '🖨️',
+    band: 'CHEAP TO PRINT • CRISP • CLASSROOM READY',
+    backHeading: 'PRINT MORE, SPEND LESS!',
+    backTeaser: 'Clean black-and-white printing — perfect for big groups.',
+    motif: 'ink'
   },
   {
-    id: 'christmas', name: 'Christmas Wonderland',
+    id: 'christmas', name: 'Christmas Cheer',
     blurb: 'Deep red & green with gold — holiday parties & sellers',
     pageBg: '#f3efe4', cardBg: '#fffef8', headerBg: '#7a1f1f', headerText: '#ffe9a8',
     cellBg: '#ffffff', cellAlt: '#eef5ea', cellText: '#274d2a', cellBorder: '#a3b899',
     accent: '#b98a1d', freeBg: '#ffe9a8', borderStyle: 'garland', radius: 8,
     headerFont: 'Georgia, serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CHRISTMAS BINGO ★', emoji: '🎄',
+    band: 'MERRY • BRIGHT • EVERY CARD DIFFERENT',
+    backHeading: 'LET THE CHRISTMAS FUN BEGIN!',
+    backTeaser: 'Festive cards, calling sheets and all — ready to play.',
+    motif: 'garland'
   },
   {
-    id: 'party', name: 'Bold Party',
+    id: 'party', name: 'Modern Rainbow Party',
     blurb: 'Bright, loud & fun — birthdays, office games, events',
     pageBg: '#eef0ff', cardBg: '#ffffff', headerBg: '#4b2fd6', headerText: '#ffffff',
     cellBg: '#ffffff', cellAlt: '#ffeef7', cellText: '#2c1a6e', cellBorder: '#a79bff',
     accent: '#e5328f', freeBg: '#8affd1', borderStyle: 'rounded', radius: 12,
     headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
-    cellFont: '"Trebuchet MS", "Segoe UI", sans-serif'
+    cellFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    badge: '★ RAINBOW PARTY BINGO ★', emoji: '🌈',
+    band: 'BRIGHT • LOUD • FUN FOR EVERYONE',
+    backHeading: 'LET THE PARTY BEGIN!',
+    backTeaser: 'Big colour, big fun — every card is different.',
+    motif: 'confetti'
   },
   {
-    id: 'ocean', name: 'Ocean Blue',
+    id: 'ocean', name: 'Tropical Luau & Summer',
     blurb: 'Deep-sea blues & teals — beach parties, summer camps',
     pageBg: '#e8f4f8', cardBg: '#ffffff', headerBg: '#0b5e7a', headerText: '#eafcff',
     cellBg: '#ffffff', cellAlt: '#e2f1f7', cellText: '#0d3b4c', cellBorder: '#8fc3d4',
     accent: '#0e86a8', freeBg: '#bdeef7', borderStyle: 'solid', radius: 10,
     headerFont: '"Segoe UI", Arial, sans-serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ SUMMER BINGO ★', emoji: '🌺',
+    band: 'SUN • SEA • EVERY CARD DIFFERENT',
+    backHeading: 'SUMMER FUN STARTS HERE!',
+    backTeaser: 'Beach-day bingo — print, play, and soak it up.',
+    motif: 'tropical'
   },
   {
-    id: 'space', name: 'Space Adventure',
+    id: 'space', name: 'Cosmic Galaxy & Space',
     blurb: 'Starry navy & gold — kids’ space parties, STEM classes',
     pageBg: '#141b34', cardBg: '#1d2748', headerBg: '#3b2a7a', headerText: '#ffe66d',
     cellBg: '#232f57', cellAlt: '#2a3866', cellText: '#e8ecff', cellBorder: '#5a6db3',
     accent: '#ffb703', freeBg: '#3b2a7a', borderStyle: 'dotted', radius: 12,
     headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ SPACE BINGO ★', emoji: '🚀',
+    band: 'BLAST OFF • EVERY CARD DIFFERENT',
+    backHeading: 'READY FOR LAUNCH!',
+    backTeaser: 'A galaxy of unique cards — no two alike.',
+    motif: 'stars'
   },
   {
-    id: 'jungle', name: 'Jungle Safari',
+    id: 'jungle', name: 'Woodland Safari & Kids Party',
     blurb: 'Leafy greens & warm amber — animal themes, school trips',
     pageBg: '#eef5e2', cardBg: '#fffef5', headerBg: '#2e6b30', headerText: '#f1f8d8',
     cellBg: '#ffffff', cellAlt: '#e7f2d5', cellText: '#2c4a22', cellBorder: '#9dbe7f',
     accent: '#e08a1e', freeBg: '#ffe9a8', borderStyle: 'solid', radius: 10,
     headerFont: 'Georgia, "Times New Roman", serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ SAFARI BINGO ★', emoji: '🦁',
+    band: 'WILD • FUN • EVERY CARD DIFFERENT',
+    backHeading: 'WELCOME TO THE SAFARI!',
+    backTeaser: 'Spot the animals, mark your card, shout BINGO!',
+    motif: 'safari'
   },
   {
     id: 'sports', name: 'Sports Day',
@@ -117,16 +185,26 @@ var BINGO_DESIGNS = [
     cellBg: '#ffffff', cellAlt: '#e8eef7', cellText: '#16283f', cellBorder: '#7f9cc4',
     accent: '#0b4ea2', freeBg: '#ffe08a', borderStyle: 'solid', radius: 6,
     headerFont: '"Arial Black", "Trebuchet MS", Arial, sans-serif',
-    cellFont: 'Arial, Helvetica, sans-serif'
+    cellFont: 'Arial, Helvetica, sans-serif',
+    badge: '★ SPORTS DAY BINGO ★', emoji: '⚽',
+    band: 'TEAM SPIRIT • EVERY CARD DIFFERENT',
+    backHeading: 'READY, SET, BINGO!',
+    backTeaser: 'Game-day fun for the whole team.',
+    motif: 'stripes'
   },
   {
-    id: 'princess', name: 'Princess Party',
+    id: 'princess', name: 'Pastel Birthday Party',
     blurb: 'Blush pink, lavender & gold — birthdays, dress-up parties',
     pageBg: '#fdf0f7', cardBg: '#fffafd', headerBg: '#b052a8', headerText: '#fff3fa',
     cellBg: '#ffffff', cellAlt: '#fbe9f6', cellText: '#5e2a56', cellBorder: '#e3a8d8',
     accent: '#d4a017', freeBg: '#ffe3f1', borderStyle: 'double', radius: 14,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ PASTEL BIRTHDAY BINGO ★', emoji: '👑',
+    band: 'PRETTY • SWEET • EVERY CARD DIFFERENT',
+    backHeading: 'A ROYAL BIRTHDAY AWAITS!',
+    backTeaser: 'Pastel pinks and gold — made for a magical day.',
+    motif: 'bows'
   },
   {
     id: 'dino', name: 'Dinosaur World',
@@ -135,7 +213,12 @@ var BINGO_DESIGNS = [
     cellBg: '#ffffff', cellAlt: '#ecead2', cellText: '#3c4630', cellBorder: '#a8a06a',
     accent: '#c96f1e', freeBg: '#f7df8e', borderStyle: 'dashed', radius: 8,
     headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ DINO BINGO ★', emoji: '🦕',
+    band: 'ROAR • EVERY CARD DIFFERENT',
+    backHeading: 'READY FOR A DINO ADVENTURE!',
+    backTeaser: 'Stomp, play, and shout BINGO!',
+    motif: 'kraft'
   },
   {
     id: 'autumn', name: 'Autumn Harvest',
@@ -144,25 +227,40 @@ var BINGO_DESIGNS = [
     cellBg: '#ffffff', cellAlt: '#f7e7cf', cellText: '#5a3418', cellBorder: '#d3a05f',
     accent: '#b3541e', freeBg: '#ffd98a', borderStyle: 'double', radius: 8,
     headerFont: 'Georgia, "Times New Roman", serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ AUTUMN BINGO ★', emoji: '🍂',
+    band: 'COZY • GOLDEN • EVERY CARD DIFFERENT',
+    backHeading: 'HARVEST FUN FOR EVERYONE!',
+    backTeaser: 'Pumpkins, leaves and laughter — print and play.',
+    motif: 'plaid'
   },
   {
-    id: 'neon', name: 'Neon Arcade',
+    id: 'neon', name: 'Retro 80s Game Night',
     blurb: 'Black-light neon pink & cyan — teen parties, game nights',
     pageBg: '#0d0d12', cardBg: '#16161f', headerBg: '#ff2e88', headerText: '#ffffff',
     cellBg: '#1b1b28', cellAlt: '#221b33', cellText: '#e6fbff', cellBorder: '#00e5ff',
     accent: '#00e5ff', freeBg: '#7a1e4f', borderStyle: 'solid', radius: 10,
     headerFont: '"Courier New", ui-monospace, monospace',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ 80s GAME NIGHT ★', emoji: '🕹️',
+    band: 'TOTALLY RAD • EVERY CARD DIFFERENT',
+    backHeading: 'GAME ON — 80s STYLE!',
+    backTeaser: 'Neon nights, retro fun — every card unique.',
+    motif: 'glow'
   },
   {
-    id: 'watercolor', name: 'Soft Watercolor',
+    id: 'watercolor', name: 'Sweet Baby Shower',
     blurb: 'Pale painted washes — baby showers, gentle celebrations',
     pageBg: '#f7f3ee', cardBg: '#fffefb', headerBg: '#7d9dbd', headerText: '#ffffff',
     cellBg: '#ffffff', cellAlt: '#eef3f0', cellText: '#44586a', cellBorder: '#b9cdc9',
     accent: '#c48b9a', freeBg: '#fbe3ec', borderStyle: 'solid', radius: 12,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ BABY SHOWER BINGO ★', emoji: '🍼',
+    band: 'SWEET • SOFT • MADE WITH LOVE',
+    backHeading: 'OH BABY, LET’S PLAY!',
+    backTeaser: 'Soft pastels for a sweet celebration.',
+    motif: 'spring'
   },
   {
     id: 'circus', name: 'Vintage Circus',
@@ -171,43 +269,364 @@ var BINGO_DESIGNS = [
     cellBg: '#fffdf6', cellAlt: '#fbeed3', cellText: '#4a1f1f', cellBorder: '#c98d5f',
     accent: '#1d5c99', freeBg: '#ffd23e', borderStyle: 'double', radius: 8,
     headerFont: 'Georgia, "Times New Roman", serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CIRCUS BINGO ★', emoji: '🎪',
+    band: 'STEP RIGHT UP • EVERY CARD DIFFERENT',
+    backHeading: 'WELCOME TO THE BIG TOP!',
+    backTeaser: 'Big-top fun — print, play, and enjoy the show.',
+    motif: 'stripes'
   },
   {
-    id: 'halloween', name: 'Halloween Spooktacular',
+    id: 'halloween', name: 'Cute Halloween Party',
     blurb: 'Cute-spooky pumpkins & ghosts — Halloween parties, classrooms',
     pageBg: '#fff8ec', cardBg: '#fffdf6', headerBg: '#e88932', headerText: '#fff8ec',
     cellBg: '#ffffff', cellAlt: '#fdeeda', cellText: '#2b2b2b', cellBorder: '#d9b48f',
     accent: '#9b7ede', freeBg: '#dcebd9', borderStyle: 'dotted', radius: 12,
     headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
-    cellFont: '"Segoe UI", Arial, sans-serif'
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ HALLOWEEN BINGO ★', emoji: '🎃',
+    band: 'CUTE • SPOOKY • EVERY CARD DIFFERENT',
+    backHeading: 'HAPPY HALLOWEEN — LET’S PLAY!',
+    backTeaser: 'Pumpkins and ghosts — friendly fun for all ages.',
+    motif: 'spooky'
   },
   {
-    id: 'valentine', name: 'Valentine\u2019s Sweetheart',
-    blurb: 'Cherry red & blush hearts — Valentine\u2019s parties, Galentine\u2019s, classrooms',
+    id: 'valentine', name: "Valentine's Day",
+    blurb: 'Cherry red & blush hearts — Valentine’s parties, Galentine’s, classrooms',
     pageBg: '#fff9f4', cardBg: '#fffdfb', headerBg: '#c94b59', headerText: '#fff5f6',
     cellBg: '#ffffff', cellAlt: '#fdeef1', cellText: '#57222b', cellBorder: '#d99ba8',
     accent: '#c94b59', freeBg: '#f6d6dc', borderStyle: 'double', radius: 12,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ VALENTINE’S BINGO ★', emoji: '💕',
+    band: 'WITH LOVE • EVERY CARD DIFFERENT',
+    backHeading: 'PLAY WITH ALL YOUR HEART!',
+    backTeaser: 'Sweet hearts and sweet games — made to share.',
+    motif: 'hearts'
   },
   {
-    id: 'coquette', name: 'Coquette Pink Bow',
+    id: 'coquette', name: 'Rose Gold Celebration',
     blurb: 'Satin bows & ballet pink — bridal & baby showers, teen birthdays',
     pageBg: '#ffffff', cardBg: '#ffffff', headerBg: '#f4c2d7', headerText: '#3a3537',
     cellBg: '#ffffff', cellAlt: '#fdf0f5', cellText: '#3a3537', cellBorder: '#e89eb8',
     accent: '#d87a9e', freeBg: '#fbe3ee', borderStyle: 'double', radius: 14,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ ROSE GOLD BINGO ★', emoji: '🎀',
+    band: 'PRETTY IN PINK • EVERY CARD DIFFERENT',
+    backHeading: 'CELEBRATE IN STYLE!',
+    backTeaser: 'Satin bows and blush pink — made for the occasion.',
+    motif: 'bows'
   },
   {
-    id: 'babybeginnings', name: 'Baby Shower Sweet Beginnings',
+    id: 'babybeginnings', name: 'Neutral Baby Celebration',
     blurb: 'Sage, beige & soft terracotta — baby showers, gender-neutral & gentle',
     pageBg: '#fff9f0', cardBg: '#fffdf8', headerBg: '#c98f78', headerText: '#fff9f0',
     cellBg: '#ffffff', cellAlt: '#f3eee1', cellText: '#4f4438', cellBorder: '#a8b9a0',
     accent: '#a8b9a0', freeBg: '#e8dccb', borderStyle: 'solid', radius: 14,
     headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
-    cellFont: 'Georgia, "Times New Roman", serif'
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ BABY BINGO ★', emoji: '👶',
+    band: 'SWEET • GENTLE • EVERY CARD DIFFERENT',
+    backHeading: 'HELLO, LITTLE ONE!',
+    backTeaser: 'Soft and gentle — perfect for welcoming baby.',
+    motif: 'spring'
+  },
+  /* ---------- NEW: ChatGPT guide — 24 covers = 8 families x 3 ---------- */
+  {
+    id: 'classic-red', name: 'Classic Red Party',
+    blurb: 'Classic red & cream, bold and timeless — any party',
+    pageBg: '#fdf3ec', cardBg: '#fffdf8', headerBg: '#b01e24', headerText: '#fff6e8',
+    cellBg: '#ffffff', cellAlt: '#fdeeee', cellText: '#4a1f1f', cellBorder: '#d9a0a0',
+    accent: '#b01e24', freeBg: '#ffe08a', borderStyle: 'double', radius: 8,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ CLASSIC PARTY BINGO ★', emoji: '🎉',
+    band: 'CLASSIC • RED • READY TO PLAY',
+    backHeading: 'LET THE GAMES BEGIN!',
+    backTeaser: 'The classic party game — print and play tonight.',
+    motif: 'classic'
+  },
+  {
+    id: 'navy-christmas', name: 'Christmas Classic Navy',
+    blurb: 'Deep navy & antique gold — a classic, formal Christmas',
+    pageBg: '#142b49', cardBg: '#fdf8ec', headerBg: '#142b49', headerText: '#f4c95d',
+    cellBg: '#ffffff', cellAlt: '#f2ecdc', cellText: '#1c2f4a', cellBorder: '#b9a06a',
+    accent: '#c9a227', freeBg: '#f4e3ac', borderStyle: 'double', radius: 6,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CHRISTMAS CLASSIC ★', emoji: '🎄',
+    band: 'NAVY & GOLD • A CLASSIC CHRISTMAS',
+    backHeading: 'A CLASSIC CHRISTMAS AWAITS!',
+    backTeaser: 'Navy, gold and candlelight — a timeless holiday game.',
+    motif: 'navy'
+  },
+  {
+    id: 'winter-wonderland', name: 'Winter Wonderland',
+    blurb: 'Icy blues & silver snowflakes — winter parties, snowy days',
+    pageBg: '#e8f1f8', cardBg: '#ffffff', headerBg: '#2e6da4', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#eaf3fa', cellText: '#1d3f5e', cellBorder: '#9dbfdd',
+    accent: '#5b8dc9', freeBg: '#d7e9ff', borderStyle: 'solid', radius: 10,
+    headerFont: '"Segoe UI", Arial, sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ WINTER WONDERLAND ★', emoji: '❄️',
+    band: 'SNOWY • MAGICAL • EVERY CARD DIFFERENT',
+    backHeading: 'WINTER MAGIC STARTS HERE!',
+    backTeaser: 'Snowflakes and sparkle — cozy winter fun.',
+    motif: 'snow'
+  },
+  {
+    id: 'spooky-halloween', name: 'Spooky Halloween',
+    blurb: 'Dark & spooky with pumpkin orange — brave Halloween parties',
+    pageBg: '#1c1030', cardBg: '#241640', headerBg: '#ff7a1a', headerText: '#ffffff',
+    cellBg: '#2c1c4d', cellAlt: '#35235c', cellText: '#f2e9ff', cellBorder: '#7a5fb0',
+    accent: '#ff7a1a', freeBg: '#4d2a6b', borderStyle: 'solid', radius: 10,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ SPOOKY HALLOWEEN ★', emoji: '👻',
+    band: 'SPOOKY • FUN • EVERY CARD DIFFERENT',
+    backHeading: 'TRICK OR TREAT — LET’S PLAY!',
+    backTeaser: 'Ghosts and pumpkins — spooky fun for brave players.',
+    motif: 'spooky'
+  },
+  {
+    id: 'elegant-birthday', name: 'Elegant Birthday Celebration',
+    blurb: 'Warm gold & cream, refined type — milestone birthdays',
+    pageBg: '#faf6ef', cardBg: '#fffdf8', headerBg: '#6b5b3e', headerText: '#f7efdc',
+    cellBg: '#ffffff', cellAlt: '#f6f1e4', cellText: '#4a4030', cellBorder: '#cbb98f',
+    accent: '#b98a1d', freeBg: '#f5e9d0', borderStyle: 'double', radius: 10,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ ELEGANT BIRTHDAY ★', emoji: '🎂',
+    band: 'ELEGANT • GOLDEN • MADE TO CELEBRATE',
+    backHeading: 'HAPPY BIRTHDAY — LET’S CELEBRATE!',
+    backTeaser: 'Golden elegance for a special birthday.',
+    motif: 'goldframe'
+  },
+  {
+    id: 'alphabet-learning', name: 'Alphabet & Learning',
+    blurb: 'Bright primary letters — preschool, phonics, early years',
+    pageBg: '#fdf6e3', cardBg: '#ffffff', headerBg: '#d94f30', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#fdf0d5', cellText: '#33302a', cellBorder: '#e0b25f',
+    accent: '#2e86ab', freeBg: '#ffe08a', borderStyle: 'rounded', radius: 12,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    badge: '★ ALPHABET BINGO ★', emoji: '🔤',
+    band: 'LEARN YOUR LETTERS • PLAY • WIN',
+    backHeading: 'LEARNING IS FUN — LET’S PLAY!',
+    backTeaser: 'Letters, sounds and smiles — made for young learners.',
+    motif: 'abc'
+  },
+  {
+    id: 'modern-classroom', name: 'Modern Classroom Collection',
+    blurb: 'Slate & sky blue, minimal — modern teachers, clean printing',
+    pageBg: '#eef2f7', cardBg: '#ffffff', headerBg: '#334155', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#eef2f7', cellText: '#1e293b', cellBorder: '#94a3b8',
+    accent: '#0ea5e9', freeBg: '#dbeafe', borderStyle: 'solid', radius: 4,
+    headerFont: '"Segoe UI", Arial, sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ MODERN CLASSROOM ★', emoji: '✏️',
+    band: 'CLEAN • MODERN • TEACHER READY',
+    backHeading: 'READY FOR A MODERN CLASSROOM!',
+    backTeaser: 'Clean, modern and print-friendly — made for teachers.',
+    motif: 'gridpaper'
+  },
+  {
+    id: 'family-gathering', name: 'Family Gathering',
+    blurb: 'Warm browns & cream — reunions, holidays, game nights',
+    pageBg: '#f7efe4', cardBg: '#fffdf6', headerBg: '#7a5a3a', headerText: '#fdf3e3',
+    cellBg: '#ffffff', cellAlt: '#f6ecdd', cellText: '#4a3826', cellBorder: '#cbb08a',
+    accent: '#b3541e', freeBg: '#ffe9a8', borderStyle: 'double', radius: 10,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ FAMILY BINGO ★', emoji: '👨‍👩‍👧‍👦',
+    band: 'TOGETHER • EVERY CARD DIFFERENT',
+    backHeading: 'FAMILY GAME NIGHT STARTS NOW!',
+    backTeaser: 'One game the whole family can play together.',
+    motif: 'family'
+  },
+  {
+    id: 'wedding-celebration', name: 'Wedding Celebration',
+    blurb: 'Soft ivory & taupe — weddings, receptions, showers',
+    pageBg: '#fbf7f1', cardBg: '#fffefb', headerBg: '#8a7d6b', headerText: '#fffaf0',
+    cellBg: '#ffffff', cellAlt: '#f6f1e8', cellText: '#4a4238', cellBorder: '#c9bda6',
+    accent: '#b98a1d', freeBg: '#f5e9d0', borderStyle: 'double', radius: 8,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ WEDDING BINGO ★', emoji: '💍',
+    band: 'LOVE • LAUGHTER • EVERY CARD DIFFERENT',
+    backHeading: 'CELEBRATE LOVE — LET’S PLAY!',
+    backTeaser: 'A sweet game for a beautiful wedding day.',
+    motif: 'wedding'
+  },
+  {
+    id: 'easter-spring', name: 'Easter Spring',
+    blurb: 'Fresh greens & blush — Easter, spring parties, gardens',
+    pageBg: '#f2fbf3', cardBg: '#fffefc', headerBg: '#7fb069', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#eef7ea', cellText: '#3c5a34', cellBorder: '#a8c69f',
+    accent: '#e88ca0', freeBg: '#ffe9a8', borderStyle: 'rounded', radius: 12,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    badge: '★ EASTER BINGO ★', emoji: '🐣',
+    band: 'HOPPY EASTER • EVERY CARD DIFFERENT',
+    backHeading: 'HAPPY EASTER — LET’S PLAY!',
+    backTeaser: 'Bunnies, eggs and springtime fun.',
+    motif: 'easter'
+  },
+  {
+    id: 'summer-celebration', name: 'Summer Celebration',
+    blurb: 'Sunny orange & warm yellow — summer parties, picnics, camps',
+    pageBg: '#fff8e1', cardBg: '#fffdf4', headerBg: '#f08a24', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#fff3d6', cellText: '#5a3d1a', cellBorder: '#e8b25f',
+    accent: '#e94f37', freeBg: '#ffe08a', borderStyle: 'rounded', radius: 12,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    badge: '★ SUMMER BINGO ★', emoji: '☀️',
+    band: 'SUNNY • BRIGHT • EVERY CARD DIFFERENT',
+    backHeading: 'HELLO, SUMMER!',
+    backTeaser: 'Sunshine games for long summer days.',
+    motif: 'summer'
+  },
+  /* ---------- NEW: Gemini guide — 15 covers ---------- */
+  {
+    id: 'emerald-christmas', name: 'Emerald & Gold Christmas',
+    blurb: 'Rich emerald & gold — a luxe, formal Christmas',
+    pageBg: '#0f5132', cardBg: '#fdf8ec', headerBg: '#0f5132', headerText: '#d4af37',
+    cellBg: '#ffffff', cellAlt: '#eef5ea', cellText: '#123f2a', cellBorder: '#b9a06a',
+    accent: '#d4af37', freeBg: '#f4e3ac', borderStyle: 'double', radius: 6,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ EMERALD CHRISTMAS ★', emoji: '🎄',
+    band: 'EMERALD & GOLD • A LUXE CHRISTMAS',
+    backHeading: 'A LUXE CHRISTMAS AWAITS!',
+    backTeaser: 'Emerald and gold — Christmas, dressed up.',
+    motif: 'goldframe'
+  },
+  {
+    id: 'gingham-classroom', name: 'Playful Classroom Gingham',
+    blurb: 'Red gingham & cream — cheerful classrooms, school parties',
+    pageBg: '#fdf6ec', cardBg: '#ffffff', headerBg: '#c0392b', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#fdeceb', cellText: '#33302a', cellBorder: '#d98880',
+    accent: '#c0392b', freeBg: '#fadbd8', borderStyle: 'solid', radius: 4,
+    headerFont: '"Segoe UI", Arial, sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CLASSROOM GINGHAM ★', emoji: '🍎',
+    band: 'GINGHAM • CHEERFUL • CLASSROOM READY',
+    backHeading: 'BACK TO SCHOOL — LET’S PLAY!',
+    backTeaser: 'Cheerful gingham for happy classrooms.',
+    motif: 'gingham'
+  },
+  {
+    id: 'chalkboard-teacher', name: 'Classic Chalkboard Teacher',
+    blurb: 'Dark chalkboard green & chalk white — old-school teachers',
+    pageBg: '#22392c', cardBg: '#33523f', headerBg: '#22392c', headerText: '#f5f0e6',
+    cellBg: '#2e4a3d', cellAlt: '#355743', cellText: '#f5f0e6', cellBorder: '#7ba08a',
+    accent: '#f5f0e6', freeBg: '#46685a', borderStyle: 'dashed', radius: 6,
+    headerFont: '"Segoe UI", Arial, sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ CHALKBOARD BINGO ★', emoji: '✏️',
+    band: 'CHALK • DUST • EVERY CARD DIFFERENT',
+    backHeading: 'CLASS IS IN SESSION!',
+    backTeaser: 'Old-school chalkboard charm — made for teachers.',
+    motif: 'chalk'
+  },
+  {
+    id: 'kraft-botanical', name: 'Rustic Kraft & Botanical',
+    blurb: 'Kraft paper & leafy greens — rustic, natural, handmade feel',
+    pageBg: '#e6d5b8', cardBg: '#f7efdd', headerBg: '#6b7c5e', headerText: '#f7efdc',
+    cellBg: '#fffdf4', cellAlt: '#f3ead2', cellText: '#4a4232', cellBorder: '#b3a284',
+    accent: '#8a6d3b', freeBg: '#efe3c2', borderStyle: 'dashed', radius: 6,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ KRAFT & BOTANICAL ★', emoji: '🌿',
+    band: 'RUSTIC • NATURAL • EVERY CARD DIFFERENT',
+    backHeading: 'BACK TO NATURE — LET’S PLAY!',
+    backTeaser: 'Kraft paper and leaves — simple, warm, lovely.',
+    motif: 'kraft'
+  },
+  {
+    id: 'midnight-halloween', name: 'Spooky Midnight Halloween',
+    blurb: 'Midnight purple & gold — spooky after-dark Halloween',
+    pageBg: '#0f0f1e', cardBg: '#1a1a30', headerBg: '#6b21a8', headerText: '#ffd166',
+    cellBg: '#232344', cellAlt: '#2a2a52', cellText: '#ece9ff', cellBorder: '#6b5fb0',
+    accent: '#ffd166', freeBg: '#3d2a6b', borderStyle: 'solid', radius: 10,
+    headerFont: '"Trebuchet MS", "Segoe UI", sans-serif',
+    cellFont: '"Segoe UI", Arial, sans-serif',
+    badge: '★ MIDNIGHT HALLOWEEN ★', emoji: '🌙',
+    band: 'MIDNIGHT • MYSTERY • EVERY CARD DIFFERENT',
+    backHeading: 'SOMETHING WICKED THIS WAY COMES!',
+    backTeaser: 'A midnight fright — spooky fun after dark.',
+    motif: 'midnight'
+  },
+  {
+    id: 'pastel-baby', name: 'Pastel Baby Shower Confetti',
+    blurb: 'Pastel pink confetti — baby showers, sweet arrivals',
+    pageBg: '#fdf2f8', cardBg: '#fffdfb', headerBg: '#f2a7c3', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#fce7f3', cellText: '#5b3a4e', cellBorder: '#f2b8d0',
+    accent: '#e56aa0', freeBg: '#ffe3ee', borderStyle: 'rounded', radius: 14,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ PASTEL BABY SHOWER ★', emoji: '🎀',
+    band: 'PASTEL • CONFETTI • OH BABY!',
+    backHeading: 'OH BABY — LET’S CELEBRATE!',
+    backTeaser: 'Pastel confetti for a sweet little arrival.',
+    motif: 'confetti'
+  },
+  {
+    id: 'americana', name: 'Stars & Stripes Americana',
+    blurb: 'Navy, red & white — 4th of July, patriotic parties',
+    pageBg: '#f4f6fb', cardBg: '#ffffff', headerBg: '#1e3a6e', headerText: '#ffffff',
+    cellBg: '#ffffff', cellAlt: '#eef2fa', cellText: '#1c2f4a', cellBorder: '#9db4d4',
+    accent: '#b22234', freeBg: '#fde8e8', borderStyle: 'solid', radius: 4,
+    headerFont: '"Arial Black", "Trebuchet MS", Arial, sans-serif',
+    cellFont: 'Arial, Helvetica, sans-serif',
+    badge: '★ AMERICANA BINGO ★', emoji: '🇺🇸',
+    band: 'STARS & STRIPES • EVERY CARD DIFFERENT',
+    backHeading: 'STARS, STRIPES & BINGO!',
+    backTeaser: 'Red, white and blue fun for the whole crew.',
+    motif: 'americana'
+  },
+  {
+    id: 'autumn-thanksgiving', name: 'Autumn Harvest & Thanksgiving',
+    blurb: 'Harvest browns & gold — Thanksgiving dinner, grateful days',
+    pageBg: '#f7ead9', cardBg: '#fffaf0', headerBg: '#7a3b12', headerText: '#ffedd5',
+    cellBg: '#ffffff', cellAlt: '#f7e7cf', cellText: '#4a2c14', cellBorder: '#c98d5f',
+    accent: '#c96f1e', freeBg: '#ffd98a', borderStyle: 'double', radius: 8,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ THANKSGIVING BINGO ★', emoji: '🦃',
+    band: 'THANKFUL • COZY • EVERY CARD DIFFERENT',
+    backHeading: 'HAPPY THANKSGIVING!',
+    backTeaser: 'Gratitude, turkey and games — gather round.',
+    motif: 'scallop'
+  },
+  {
+    id: 'valentine-blush', name: 'Valentine Blush & Gold',
+    blurb: 'Blush pink & gold — a luxe, romantic Valentine’s',
+    pageBg: '#fdf0f3', cardBg: '#fffdfb', headerBg: '#a4133c', headerText: '#ffe3ec',
+    cellBg: '#ffffff', cellAlt: '#fce7ee', cellText: '#571f2e', cellBorder: '#d99ba8',
+    accent: '#d4a017', freeBg: '#fbe3c2', borderStyle: 'double', radius: 12,
+    headerFont: '"Palatino Linotype", "Book Antiqua", Georgia, serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ VALENTINE BLUSH & GOLD ★', emoji: '💝',
+    band: 'BLUSH & GOLD • WITH LOVE',
+    backHeading: 'LOVE IS IN THE AIR!',
+    backTeaser: 'Blush pink and gold — a valentine to remember.',
+    motif: 'goldframe'
+  },
+  {
+    id: 'gold-soiree', name: 'Luxury Gold & Black Soirée',
+    blurb: 'Gold on black, black-tie — galas, New Year’s, luxe nights',
+    pageBg: '#111111', cardBg: '#1c1a17', headerBg: '#d4af37', headerText: '#111111',
+    cellBg: '#24211d', cellAlt: '#2c2822', cellText: '#f5ecd7', cellBorder: '#8a7a4a',
+    accent: '#d4af37', freeBg: '#3a2f14', borderStyle: 'double', radius: 4,
+    headerFont: 'Georgia, "Times New Roman", serif',
+    cellFont: 'Georgia, "Times New Roman", serif',
+    badge: '★ GOLD & BLACK SOIRÉE ★', emoji: '✨',
+    band: 'LUXURY • GOLD • BLACK TIE',
+    backHeading: 'AN EVENING OF ELEGANCE!',
+    backTeaser: 'Gold on black — bingo, dressed for the evening.',
+    motif: 'soiree'
   }
 ];
 
