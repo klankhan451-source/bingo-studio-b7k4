@@ -25,6 +25,154 @@ var PAPER = {
   a4: { w: '210mm', h: '297mm', label: 'A4' }
 };
 
+/* Lighten a #rrggbb hex toward white by f (0 = unchanged, 1 = white).
+   Used to tint a design's accent into soft pattern colours. */
+function tint(hex, f) {
+  var m = /^#?([0-9a-fA-F]{6})$/.exec(String(hex || ''));
+  if (!m) return hex;
+  var n = parseInt(m[1], 16);
+  var mix = function (v) { return Math.round(v + (255 - v) * f); };
+  var h = function (v) { var s = v.toString(16); return s.length < 2 ? '0' + s : s; };
+  return '#' + h(mix((n >> 16) & 255)) + h(mix((n >> 8) & 255)) + h(mix(n & 255));
+}
+
+/* Resolve the design for a book: opts.design when the app/tests
+   pass it, else the global designs.js lookup by opts.designId
+   (available in the browser), else null (covers fall back to the
+   plain defaults). */
+function designFor(opts) {
+  if (opts && opts.design) return opts.design;
+  if (opts && opts.designId && typeof bingoDesignById === 'function') {
+    return bingoDesignById(opts.designId);
+  }
+  return null;
+}
+
+/* ---------- cover motifs ----------
+ * One decorative treatment per design (motif key on the design
+ * preset). The treatment is a deco strip at the top of the cover
+ * frame (+ back frame) and/or a frame treatment — all pure CSS,
+ * no images. `.cov-deco` is hidden by default; only motifs that
+ * define a strip show it. */
+function motifCss(d) {
+  var m = (d && d.motif) || '';
+  if (!m) return '';
+  /* F = the cover frame itself; D = the deco strip div inside it.
+     (D must target .cov-deco on BOTH covers — an earlier version
+     appended ' .cov-deco' only to the second selector, so the
+     motif rules styled the whole front frame instead of the strip.) */
+  var F = '.bk-cover .cov-frame.motif-' + m + ', .bk-back .back-frame.motif-' + m;
+  var D = '.bk-cover .cov-frame.motif-' + m + ' .cov-deco, .bk-back .back-frame.motif-' + m + ' .cov-deco';
+  var show = function (bg) {
+    return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' + bg + '; background-size: 30mm 6mm; background-repeat: repeat-x; }';
+  };
+  /* r1/r2 are NUMBERS in mm (passing '1.6mm' strings broke the
+     transparent stop: '1.6mm' + 0.2 concatenates to '1.6mm0.2'). */
+  var dots = function (c1, c2, r1, r2, gap) {
+    return 'radial-gradient(circle at 5mm 3mm, ' + c1 + ' ' + r1 + 'mm, transparent ' + (r1 + 0.2) + 'mm), ' +
+      'radial-gradient(circle at ' + (5 + gap / 2) + 'mm 2mm, ' + c2 + ' ' + r2 + 'mm, transparent ' + (r2 + 0.2) + 'mm)';
+  };
+  switch (m) {
+    case 'classic':
+      return F + ' { border: 3px double ' + d.accent + '; box-shadow: inset 0 0 0 1.5mm ' + d.cardBg + ', inset 0 0 0 2.1mm ' + d.accent + '; }';
+    case 'wedding':
+      return F + ' { border: 2px double ' + d.cellBorder + '; box-shadow: inset 0 0 0 1.5mm ' + d.cardBg + ', inset 0 0 0 2.1mm ' + d.cellBorder + '; }';
+    case 'goldframe':
+      return F + ' { border: 2px solid ' + d.accent + '; outline: 1px solid ' + d.accent + '; outline-offset: 2mm; }';
+    case 'navy':
+      return F + ' { border: 3px double ' + d.accent + '; box-shadow: inset 0 0 0 1.5mm ' + d.cardBg + ', inset 0 0 0 2.1mm ' + d.accent + '; }';
+    case 'soiree':
+      return F + ' { border: 1px solid ' + d.accent + '; outline: 1px solid ' + d.accent + '; outline-offset: 2.5mm; }';
+    case 'glow':
+      return F + ' { box-shadow: 0 0 0 2px ' + d.accent + ', 0 0 5mm ' + d.accent + '; }';
+    case 'confetti':
+      return show(dots(d.accent, d.headerBg, 1.6, 1.3, 22) + ', ' + dots(d.headerBg, d.accent, 1.1, 1.4, 26));
+    case 'spring':
+      return show(dots(d.accent, d.headerBg, 1.4, 1.2, 22));
+    case 'tropical':
+      return show(dots(d.accent, d.headerBg, 2.2, 1.6, 24));
+    case 'stars':
+      return D + ' { display: block; background-color: ' + d.headerBg + '; background-image: ' +
+        'radial-gradient(circle at 5mm 2.5mm, ' + d.accent + ' 1.4mm, transparent 1.6mm), ' +
+        'radial-gradient(circle at 18mm 4mm, #ffffff 1mm, transparent 1.2mm); background-size: 26mm 6mm; }';
+    case 'snow':
+      return D + ' { display: block; background-color: ' + d.headerBg + '; background-image: ' +
+        'radial-gradient(circle at 5mm 3mm, #ffffff 1.5mm, transparent 1.7mm), ' +
+        'radial-gradient(circle at 16mm 2mm, #ffffff 1mm, transparent 1.2mm); background-size: 24mm 6mm; }';
+    case 'midnight':
+      return D + ' { display: block; background-color: ' + d.headerBg + '; background-image: ' +
+        'radial-gradient(circle at 5mm 2.5mm, ' + d.accent + ' 1.5mm, transparent 1.7mm), ' +
+        'radial-gradient(circle at 17mm 4mm, #ffffff 1mm, transparent 1.2mm); background-size: 26mm 6mm; }';
+    case 'hearts':
+      return show(dots(d.accent, d.accent, 1.8, 1.2, 22));
+    case 'family':
+      return show(dots(d.accent, d.headerBg, 1.6, 1.3, 22));
+    case 'safari':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; border-bottom: 2px dashed ' + d.accent + '; background-image: ' + dots(d.accent, d.headerBg, 1.6, 1.2, 22) + '; background-size: 26mm 6mm; }';
+    case 'gridpaper':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, ' + tint(d.accent, 0.7) + ' 0, ' + tint(d.accent, 0.7) + ' 0.6mm, transparent 0.6mm, transparent 8mm), ' +
+        'repeating-linear-gradient(0deg, ' + tint(d.accent, 0.7) + ' 0, ' + tint(d.accent, 0.7) + ' 0.6mm, transparent 0.6mm, transparent 6mm); }';
+    case 'gingham':
+      return F + ' { background-image: ' +
+        'repeating-linear-gradient(0deg, ' + tint(d.accent, 0.82) + ' 0, ' + tint(d.accent, 0.82) + ' 7mm, transparent 7mm, transparent 14mm), ' +
+        'repeating-linear-gradient(90deg, ' + tint(d.accent, 0.82) + ' 0, ' + tint(d.accent, 0.82) + ' 7mm, transparent 7mm, transparent 14mm); }' +
+        D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(0deg, ' + tint(d.accent, 0.82) + ' 0, ' + tint(d.accent, 0.82) + ' 7mm, transparent 7mm, transparent 14mm), ' +
+        'repeating-linear-gradient(90deg, ' + tint(d.accent, 0.82) + ' 0, ' + tint(d.accent, 0.82) + ' 7mm, transparent 7mm, transparent 14mm); }';
+    case 'plaid':
+      return F + ' { background-image: ' +
+        'repeating-linear-gradient(0deg, ' + tint(d.accent, 0.8) + ' 0, ' + tint(d.accent, 0.8) + ' 1mm, transparent 1mm, transparent 11mm), ' +
+        'repeating-linear-gradient(90deg, ' + tint(d.accent, 0.8) + ' 0, ' + tint(d.accent, 0.8) + ' 1mm, transparent 1mm, transparent 11mm); }' +
+        D + ' { display: block; background-color: ' + d.headerBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, ' + tint(d.accent, 0.55) + ' 0, ' + tint(d.accent, 0.55) + ' 6mm, transparent 6mm, transparent 12mm); }';
+    case 'garland':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, #1E7A4C 0, #1E7A4C 8mm, ' + d.headerBg + ' 8mm, ' + d.headerBg + ' 16mm); }';
+    case 'stripes':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(45deg, ' + d.accent + ' 0, ' + d.accent + ' 4mm, ' + tint(d.accent, 0.55) + ' 4mm, ' + tint(d.accent, 0.55) + ' 8mm); }';
+    case 'bows':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; border-bottom: 2px solid ' + d.accent + '; background-image: ' +
+        'repeating-linear-gradient(90deg, ' + d.accent + ' 0, ' + d.accent + ' 5mm, transparent 5mm, transparent 11mm); }';
+    case 'kraft':
+      return D + ' { display: block; background-color: ' + tint(d.accent, 0.75) + '; background-image: ' +
+        'repeating-linear-gradient(45deg, ' + d.accent + ' 0, ' + d.accent + ' 1.6mm, transparent 1.6mm, transparent 9mm); }';
+    case 'chalk':
+      return F + ' { background: ' + d.headerBg + '; color: ' + d.headerText + '; border: 2px dashed ' + d.headerText + '; }' +
+        '.bk-cover .cov-frame.motif-chalk h1, .bk-cover .cov-frame.motif-chalk h2, ' +
+        '.bk-cover .cov-frame.motif-chalk .cov-meta, .bk-cover .cov-frame.motif-chalk .cov-inc, ' +
+        '.bk-cover .cov-frame.motif-chalk .cov-biz, .bk-cover .cov-frame.motif-chalk .cov-sub { color: ' + d.headerText + '; }' +
+        '.bk-cover .cov-frame.motif-chalk .cov-badge { background: ' + d.accent + '; color: ' + d.headerBg + '; }' +
+        '.bk-cover .cov-frame.motif-chalk .cov-band { background: ' + d.accent + '; color: ' + d.headerBg + '; }' +
+        '.bk-back .back-frame.motif-chalk h2, .bk-back .back-frame.motif-chalk h3, ' +
+        '.bk-back .back-frame.motif-chalk .back-list, .bk-back .back-frame.motif-chalk .back-how, ' +
+        '.bk-back .back-frame.motif-chalk .back-thanks, .bk-back .back-frame.motif-chalk .back-biz, ' +
+        '.bk-back .back-frame.motif-chalk .back-teaser { color: ' + d.headerText + '; }' +
+        D + ' { display: block; height: 1.5mm; background: repeating-linear-gradient(90deg, ' + d.headerText + ' 0, ' + d.headerText + ' 8mm, transparent 8mm, transparent 13mm); }';
+    case 'spooky':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, #ff7a1a 0, #ff7a1a 8mm, #9b7ede 8mm, #9b7ede 16mm); }';
+    case 'easter':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, ' + d.accent + ' 0, ' + d.accent + ' 8mm, ' + d.headerBg + ' 8mm, ' + d.headerBg + ' 16mm); }';
+    case 'summer':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-radial-gradient(circle at 50% 130%, ' + d.accent + ' 0, ' + d.accent + ' 2.5mm, transparent 2.5mm, transparent 8mm); }';
+    case 'abc':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'repeating-linear-gradient(90deg, #d94f30 0, #d94f30 8mm, #2e86ab 8mm, #2e86ab 16mm, #e8a13a 16mm, #e8a13a 24mm); }';
+    case 'americana':
+      return D + ' { display: block; background-color: #ffffff; background-image: ' +
+        'repeating-linear-gradient(180deg, #B22234 0, #B22234 2mm, #ffffff 2mm, #ffffff 4mm); }';
+    case 'scallop':
+      return D + ' { display: block; background-color: ' + d.cardBg + '; background-image: ' +
+        'radial-gradient(circle at 50% 100%, ' + d.accent + ' 3.5mm, transparent 3.7mm); background-size: 12mm 6mm; background-repeat: repeat-x; }';
+    default:
+      return '';
+  }
+}
+
 /* ---------- CSS (single source of truth for book styling) ---------- */
 
 function bookCss(design, opts) {
@@ -43,7 +191,7 @@ function bookCss(design, opts) {
   '.bk-cover .cov-minis .cov-mini { margin: 0; }' +
   '.bk-cover .cov-tilt-l { transform: rotate(-2deg); }' +
   '.bk-cover .cov-tilt-r { transform: rotate(2deg); }' +
-  '.bk-cover .cov-band { margin-top: 10mm; background: ' + d.headerBg + '; color: ' + d.headerText + '; font-size: 10.5pt; padding: 3.2mm 5mm; border-radius: ' + d.radius + 'px; }' +
+  '.bk-cover .cov-band { margin-top: 10mm; background: ' + d.headerBg + '; color: ' + d.headerText + '; font-size: 10.5pt; padding: 3.2mm 5mm; border-radius: ' + d.radius + 'px; white-space: nowrap; overflow: hidden; }' +
   '.bk-cover .cov-frame { border: 3px ' + d.borderStyle + ' ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 12mm 8mm; background: ' + d.cardBg + '; }' +
   '.bk-cover h1 { font-family: ' + d.headerFont + '; font-size: 34pt; margin: 0 0 4mm; color: ' + d.headerBg + '; }' +
   '.bk-cover h2 { font-family: ' + d.headerFont + '; font-size: 15pt; font-weight: normal; margin: 0 0 8mm; }' +
@@ -64,14 +212,17 @@ function bookCss(design, opts) {
   '.bk-cover .cov-mini .cell-piclabel { font-size: 5.5pt; }' +
   '.bk-cover .cov-mini .bc-foot, .cov-mini .bc-id { font-size: 5.5pt; }' +
   '.bk-cover .cov-biz { margin-top: 9mm; font-size: 10pt; letter-spacing: 1px; }' +
+  /* cover deco strip: hidden unless the design's motif shows one */
+  '.bk-cover .cov-deco, .bk-back .cov-deco { display: none; height: 6mm; border-radius: 3mm; margin: 0 0 4mm; }' +
+  motifCss(d) +
   /* back cover */
-  '.bk-back { text-align: center; padding: 10mm 6mm 12mm; background: ' + d.pageBg + '; }' +
-  '.bk-back .back-frame { border: 3px ' + d.borderStyle + ' ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 10mm 8mm; background: ' + d.cardBg + '; }' +
-  '.bk-back h2 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 20pt; margin: 0 0 4mm; }' +
-  '.bk-back h3 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 13pt; margin: 6mm 0 2mm; }' +
-  '.bk-back .back-list { display: inline-block; text-align: left; font-size: 12pt; line-height: 1.95; margin: 0; padding: 0; list-style: none; }' +
+  '.bk-back { text-align: center; padding: 8mm 6mm 8mm; background: ' + d.pageBg + '; }' +
+  '.bk-back .back-frame { border: 3px ' + d.borderStyle + ' ' + d.accent + '; border-radius: ' + d.radius + 'px; padding: 8mm 8mm; background: ' + d.cardBg + '; }' +
+  '.bk-back h2 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 18pt; margin: 0 0 3mm; }' +
+  '.bk-back h3 { font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; font-size: 13pt; margin: 4mm 0 2mm; }' +
+  '.bk-back .back-list { display: inline-block; text-align: left; font-size: 12pt; line-height: 1.7; margin: 0; padding: 0; list-style: none; }' +
   '.bk-back .back-how { font-size: 11.5pt; line-height: 1.65; margin: 0; }' +
-  '.bk-back .cov-mini { width: 76mm; margin: 6mm auto 0; }' +
+  '.bk-back .cov-mini { width: 76mm; margin: 4mm auto 0; }' +
   '.bk-back .cov-mini.wide { width: 122mm; }' +
   '.bk-back .cov-mini table { table-layout: fixed; }' +
   '.bk-back .cov-mini .bcard { padding: 2mm; }' +
@@ -85,12 +236,16 @@ function bookCss(design, opts) {
   '.bk-back .cov-mini .bc-foot, .bk-back .cov-mini .bc-id { font-size: 5.5pt; }' +
   '.bk-balls { display: flex; justify-content: center; gap: 3mm; margin-top: 6mm; }' +
   '.bk-ball { width: 13mm; height: 13mm; border-radius: 50%; color: #ffffff; font-weight: bold; font-size: 10.5pt; line-height: 13mm; text-align: center; }' +
-  '.bk-back .back-thanks { margin-top: 8mm; font-size: 14pt; font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; }' +
+  '.bk-back .back-thanks { margin-top: 5mm; font-size: 14pt; font-family: ' + d.headerFont + '; color: ' + d.headerBg + '; }' +
   '.bk-back .back-biz { margin-top: 1.5mm; font-size: 10pt; letter-spacing: 1px; }' +
-  '.bk-barcode { margin-top: 7mm; }' +
-  '.bk-barcode .bars { display: flex; justify-content: center; align-items: stretch; height: 12mm; }' +
+  '.bk-back .back-teaser { font-size: 11.5pt; font-style: italic; margin: 0 0 3mm; }' +
+  /* barcode zone: a white box, bottom-right, reserved for the
+     KDP barcode — the set-ID bars inside are decorative only */
+  '.bk-barcode { background: #ffffff; border: 1px solid #999999; border-radius: 2mm; padding: 2mm 4mm 1.5mm; width: 62mm; margin: 4mm 0 0 auto; }' +
+  '.bk-barcode .bars { display: flex; justify-content: center; align-items: stretch; height: 10mm; }' +
   '.bk-barcode .bar { background: #1a1a1a; margin-right: 0.55mm; }' +
-  '.bk-barcode .bc-label { font-size: 8.5pt; letter-spacing: 2.5px; margin-top: 1.6mm; }' +
+  '.bk-barcode .bc-label { font-size: 8.5pt; letter-spacing: 2.5px; margin-top: 1.2mm; color: #1a1a1a; }' +
+  '.bk-barcode .bc-zone { font-size: 7.5pt; letter-spacing: 2px; color: #666666; margin-top: 1mm; }' +
   /* own-photo cover: the picture bleeds to the paper edges (it is
      offset by exactly the page margin) and the words sit on a
      readable plate near the bottom */
@@ -382,10 +537,21 @@ function coverEmojiStrip(set, opts) {
   return out.length >= 3 ? out.join(' ') : '🎉 🎊 ⭐ 🎈 🎁';
 }
 
+/* Personalisation lines for the cover meta: "Created for" name
+   and event date, printed only when the buyer filled them in. */
+function coverPersonalLines(opts) {
+  var out = '';
+  if (opts.createdFor) out += '<br>Created for: ' + esc(opts.createdFor);
+  if (opts.eventDate) out += '<br>' + esc(opts.eventDate);
+  return out;
+}
+
 function coverPage(set, opts) {
   /* 90-ball packs sell tickets in strips, not cards — every
      "card" word on the cover must say "ticket" for ball90. */
   var unitWord = set.mode === 'ball90' ? 'tickets' : 'cards';
+  var dg = designFor(opts);
+  var badge = dg && dg.badge ? dg.badge : '★ PRINTABLE BINGO GAME PACK ★';
   /* Buyer's own picture: full-bleed photo cover with a title plate.
      The designed cover below renders exactly as before when no
      picture is set. */
@@ -393,12 +559,12 @@ function coverPage(set, opts) {
     return '<div class="bk-page bk-photo-cover">' +
       '<img class="cov-photo" src="' + opts.coverImage + '" alt="">' +
       '<div class="cov-plate">' +
-      '<div><span class="cov-badge">★ PRINTABLE BINGO GAME PACK ★</span></div>' +
+      '<div><span class="cov-badge">' + esc(badge) + '</span></div>' +
       '<h1>' + esc(opts.title || 'Bingo') + '</h1>' +
       '<h2>' + esc(opts.formatName || '') + '</h2>' +
       (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
       '<div class="cov-meta">' + set.cards.length + ' unique ' + unitWord + ' · Set ' + esc(set.setId) + '<br>' +
-      'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
+      'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale' + coverPersonalLines(opts) + '</div>' +
       '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
       '</div></div>';
   }
@@ -415,9 +581,19 @@ function coverPage(set, opts) {
       (set.cards[1] ? '<div class="cov-mini cov-tilt-r">' + cardHtml(set, set.cards[1], opts) + '</div>' : '') +
       '</div>';
   }
-  return '<div class="bk-page bk-cover"><div class="cov-frame">' +
-    '<div><span class="cov-badge">★ PRINTABLE BINGO GAME PACK ★</span></div>' +
-    '<div style="font-size:26pt">' + (opts.coverEmoji || '🎉') + '</div>' +
+  /* The design's own badge / emoji / bottom strip; ball modes keep
+     their own big emoji (🔵 / 🎟️), word & picture modes use the
+     design's emoji. No design → the plain defaults. */
+  var motifCls = dg && dg.motif ? ' motif-' + dg.motif : '';
+  var bigEmoji = (set.mode === 'ball75' || set.mode === 'ball90')
+    ? (opts.coverEmoji || '🎉')
+    : (dg && dg.emoji ? dg.emoji : (opts.coverEmoji || '🎉'));
+  var band = dg && dg.band ? dg.band
+    : 'You need: a printer · scissors · coins, beans or markers to cover your ' + (set.mode === 'ball90' ? 'numbers' : 'squares');
+  return '<div class="bk-page bk-cover"><div class="cov-frame' + motifCls + '">' +
+    '<div class="cov-deco"></div>' +
+    '<div><span class="cov-badge">' + esc(badge) + '</span></div>' +
+    '<div style="font-size:26pt">' + bigEmoji + '</div>' +
     '<h1>' + esc(opts.title || 'Bingo') + '</h1>' +
     '<h2>' + esc(opts.formatName || '') + '</h2>' +
     (opts.subtitle ? '<div class="cov-sub">' + esc(opts.subtitle) + '</div>' : '') +
@@ -426,10 +602,10 @@ function coverPage(set, opts) {
     (set.mode === 'ball90'
       ? 'Winning patterns: One line · Two lines · Full house<br>'
       : 'Winning pattern: ' + esc(patternName(opts.pattern)) + '<br>') +
-    'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale</div>' +
+    'Paper: ' + PAPER[opts.paper].label + ' · Print at 100% scale' + coverPersonalLines(opts) + '</div>' +
     '<div class="cov-inc">INCLUDES: ' + inc + '</div>' +
     minis +
-    '<div class="cov-band">You need: a printer · scissors · coins, beans or markers to cover your ' + (set.mode === 'ball90' ? 'numbers' : 'squares') + '</div>' +
+    '<div class="cov-band">' + esc(band) + '</div>' +
     '<div class="cov-biz">' + esc(opts.business || 'Songlap Deals') + '</div>' +
     '</div></div>';
 }
@@ -447,7 +623,8 @@ function barcodeHtml(set) {
     bars += '<span class="bar" style="width:' + widths[code % 3] + 'mm"></span>';
   }
   return '<div class="bk-barcode"><div class="bars">' + bars + '</div>' +
-    '<div class="bc-label">SET ' + esc(set.setId) + '</div></div>';
+    '<div class="bc-label">SET ' + esc(set.setId) + '</div>' +
+    '<div class="bc-zone">RESERVED FOR BARCODE</div></div>';
 }
 
 /* A strip of the first five called balls (75-ball back cover). */
@@ -462,6 +639,8 @@ function ballStripHtml(set) {
 }
 
 function backCoverPage(set, opts) {
+  var dg = designFor(opts);
+  var motifCls = dg && dg.motif ? ' motif-' + dg.motif : '';
   var contents = [
     set.cards.length + (set.mode === 'ball90'
       ? ' unique tickets — every ticket different'
@@ -490,8 +669,16 @@ function backCoverPage(set, opts) {
       'The caller draws one call at a time — cover the matching square.<br>' +
       'First to complete the winning pattern shouts BINGO!<br>' +
       'Winning pattern: ' + patternDef(opts.pattern) + '.';
-  return '<div class="bk-page bk-back"><div class="back-frame">' +
-    '<h2>What’s inside this pack</h2>' +
+  /* The design's own back-cover heading + teaser; without a
+     design the plain "What's inside this pack" heading stands. */
+  var headBlock = (dg && dg.backHeading)
+    ? '<h2>' + esc(dg.backHeading) + '</h2>' +
+      (dg.backTeaser ? '<p class="back-teaser">' + esc(dg.backTeaser) + '</p>' : '') +
+      '<h3>What’s inside this pack</h3>'
+    : '<h2>What’s inside this pack</h2>';
+  return '<div class="bk-page bk-back"><div class="back-frame' + motifCls + '">' +
+    '<div class="cov-deco"></div>' +
+    headBlock +
     '<ul class="back-list">' + list + '</ul>' +
     visual +
     '<h3>How to play — the short version</h3>' +
@@ -627,7 +814,10 @@ function instructionsPage(set, opts) {
  * opts: design-resolved fields come via bookCss; here opts =
  * { title, subtitle, business, formatName, coverEmoji, paper,
  *   perPage (1/2/4/6), largePrint, cover (bool), backCover (bool),
- *   coverImage (data URL or null), pattern,
+ *   coverImage (data URL or null), pattern, design (resolved
+ *   preset object or null — coverPage/backCoverPage resolve it
+ *   from opts.designId when absent), designId,
+ *   createdFor, eventDate,
  *   items, pictureStyle, useClues, customImages, freeText }
  */
 function buildBook(set, opts) {
