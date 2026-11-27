@@ -315,8 +315,15 @@ if (typeof module !== 'undefined' && module.exports) {
       pictureStyle: $('pic-style').value === 'pic' ? 'pic' : 'piclabel',
       useClues: $('use-clues').checked,
       freeText: $('free-text').value.trim() || '★ FREE',
-      coverEmoji: mode === 'ball75' ? '🔵' : (mode === 'ball90' ? '🎟️' : '🎉')
+      /* ball modes keep their own big cover emoji; word & picture
+         modes use the design's emoji (coverPage falls back to it) */
+      coverEmoji: mode === 'ball75' ? '🔵' : (mode === 'ball90' ? '🎟️' : undefined),
+      createdFor: $('createdfor-in').value.trim(),
+      eventDate: $('eventdate-in').value.trim()
     };
+    /* the resolved design rides on opts so the cover pages can use
+       the design's own badge / band / back-cover copy */
+    opts.design = resolveDesign(opts);
     var formatName = {
       word: 'Word Bingo', picture: 'Picture Bingo',
       ball75: '75-Ball Number Bingo', ball90: '90-Ball Bingo (UK)'
@@ -918,7 +925,9 @@ if (typeof module !== 'undefined' && module.exports) {
       useClues: $('use-clues').checked,
       title: $('title-in').value,
       subtitle: $('subtitle-in').value,
-      business: $('business-in').value
+      business: $('business-in').value,
+      createdFor: $('createdfor-in').value,
+      eventDate: $('eventdate-in').value
     };
   }
 
@@ -950,6 +959,8 @@ if (typeof module !== 'undefined' && module.exports) {
     $('title-in').value = p.title;
     $('subtitle-in').value = p.subtitle;
     $('business-in').value = p.business;
+    $('createdfor-in').value = p.createdFor || '';
+    $('eventdate-in').value = p.eventDate || '';
     document.querySelector('[data-tab="create"]').click();
     generate(true);
   }
